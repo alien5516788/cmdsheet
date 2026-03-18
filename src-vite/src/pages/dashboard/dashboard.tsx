@@ -75,7 +75,10 @@ export default function Dashboard() {
             </span>
 
             {/* New Snippet */}
-            <button className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2">
+            <button
+              className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2 px-3 py-1
+              border border-[#50fa7b] hover:border-[#bd93f9] rounded"
+            >
               <FaPlus />
               <span>Add snippet</span>
             </button>

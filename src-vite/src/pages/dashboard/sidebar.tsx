@@ -24,7 +24,7 @@ function SidebarItem(props: SidebarItemProps) {
     <button
       className={`flex items-center gap-3 px-3 py-2 text-[#f8f8f2] hover:bg-[#44475a] transition
       ${label === viewGroup ? "bg-[#44475a]" : ""}`}
-      onClick={() => setViewGroup(viewGroup)}
+      onClick={() => setViewGroup(label)}
     >
       <span className="text-[#8be9fd] flex items-center w-5 h-7">{icon}</span>
       {!collapsed && <span className="flex items-center h-7">{label}</span>}
@@ -89,10 +89,11 @@ export default function Sidebar(props: SidebarProps) {
           collapsed={collapsed}
         />
 
-        {/* add group button */}
+        {/* Add group button */}
         <button
-          className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-3 px-3 py-2
+          className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-3 px-3 py-1
           border border-[#50fa7b] hover:border-[#bd93f9] rounded"
+          onClick={() => setCollapsed(false)}
         >
           <span className="flex items-center w-5 h-7">
             <FaPlus />
@@ -104,7 +105,7 @@ export default function Sidebar(props: SidebarProps) {
 
         {/* Custom groups */}
         <SidebarItem
-          label="favourites"
+          label="custom"
           viewGroup={viewGroup}
           setViewGroup={setViewGroup}
           icon={<FaLayerGroup />}
