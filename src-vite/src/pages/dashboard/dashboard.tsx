@@ -54,7 +54,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col">
+    <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col">
       {/* Navbar */}
       <Navbar viewGroup={viewGroup} />
 

@@ -1,12 +1,6 @@
 import { useState } from "react";
-import {
-  FaBars,
-  FaCode,
-  FaHistory,
-  FaLayerGroup,
-  FaPlus,
-  FaStar,
-} from "react-icons/fa";
+import { FaBars, FaCode, FaHistory, FaPlus, FaStar } from "react-icons/fa";
+import GroupCard from "./groupcard";
 
 interface SidebarItemProps {
   setViewGroup: React.Dispatch<
@@ -49,10 +43,33 @@ export default function Sidebar(props: SidebarProps) {
     setCollapsed(!collapsed);
   }
 
+  // temp
+  const dummyGroups = [
+    { id: "g1", name: "web-exploitation", count: 12 },
+    { id: "g2", name: "reverse-engineering", count: 8 },
+    { id: "g3", name: "docker-workflows", count: 5 },
+    {
+      id: "g4",
+      name: "long-group-name-that-should-truncate-properly",
+      count: 20,
+    },
+    { id: "g5", name: "networking", count: 6 },
+    { id: "g6", name: "forensics", count: 3 },
+    { id: "g7", name: "automation-scripts", count: 14 },
+    { id: "g8", name: "privilege-escalation", count: 9 },
+    { id: "g9", name: "web-recon", count: 11 },
+    { id: "g10", name: "api-testing", count: 7 },
+    { id: "g11", name: "linux-hardening", count: 4 },
+    { id: "g12", name: "cloud-security", count: 10 },
+    { id: "g13", name: "malware-analysis", count: 6 },
+    { id: "g14", name: "osint-tools", count: 13 },
+    { id: "g15", name: "ci-cd-pipelines", count: 5 },
+  ];
+
   return (
     <aside
-      className={`border-r border-l border-b border-[#44475a] bg-[#282a36] transition-all duration-300
-        ${collapsed ? "w-16" : "w-56"}`}
+      className={`flex flex-col border-r border-l border-b border-[#44475a] bg-[#282a36]
+        transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}
     >
       {/* Collapse Button */}
       <div className="flex justify-start p-5">
@@ -104,13 +121,20 @@ export default function Sidebar(props: SidebarProps) {
         </button>
 
         {/* Custom groups */}
-        <SidebarItem
-          label="custom"
-          viewGroup={viewGroup}
-          setViewGroup={setViewGroup}
-          icon={<FaLayerGroup />}
-          collapsed={collapsed}
-        />
+        {/* ISSUE: List must extend to bottom of screen */}
+        <div className="h-[400px] mt-2 flex flex-col gap-1 overflow-y-auto pr-1 border border-[#44475a] rounded-sm">
+          {dummyGroups.map((group) => (
+            <GroupCard
+              key={group.id}
+              id={group.id}
+              name={group.name}
+              count={group.count}
+              collapsed={collapsed}
+              setViewGroup={setViewGroup}
+              viewGroup={viewGroup}
+            />
+          ))}
+        </div>
       </nav>
     </aside>
   );
