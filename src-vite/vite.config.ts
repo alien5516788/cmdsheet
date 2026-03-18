@@ -6,7 +6,7 @@ import babel from "@rolldown/plugin-babel";
 export default defineConfig({
   plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
   build: {
-    outDir: "../dist",
+    outDir: "../src/dist",
     emptyOutDir: true,
   },
 });
