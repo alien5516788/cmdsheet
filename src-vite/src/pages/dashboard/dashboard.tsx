@@ -1,13 +1,15 @@
 import { useState } from "react";
-import ItemCard from "./itemcard";
+import ItemCard from "./snippetcard";
 import Navbar from "./navbar";
 import Sidebar from "./sidebar";
 import { FaPlus } from "react-icons/fa";
 
 export default function Dashboard() {
-  const [viewType, setViewType] = useState<
-    "snippets" | "groups" | "recent" | "favourites"
-  >("snippets");
+  // There are 3 fixed groups and any number of custom groups
+  // Dashboard can be set to show snippets from a specific group
+  const [viewGroup, setViewGroup] = useState<
+    "default" | "recent" | "favourites" | string
+  >("default");
 
   // temp
   const dummyData: {
@@ -15,7 +17,6 @@ export default function Dashboard() {
     name: string;
     description: string;
     tags: string[];
-    type: "snippet" | "group";
   }[] = [
     {
       id: "1",
@@ -23,7 +24,6 @@ export default function Dashboard() {
       description:
         "Common docker commands for container management and debugging workflows",
       tags: ["docker", "devops", "containers", "cli", "linux"],
-      type: "snippet",
     },
     {
       id: "2",
@@ -31,7 +31,6 @@ export default function Dashboard() {
       description:
         "Force reset git repository to a previous commit. Dangerous but useful.",
       tags: ["git", "version-control", "danger", "cli"],
-      type: "snippet",
     },
     {
       id: "3",
@@ -51,19 +50,18 @@ export default function Dashboard() {
         "enumeration",
         "extra-tag",
       ],
-      type: "group",
     },
   ];
 
   return (
     <div className="min-h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col">
       {/* Navbar */}
-      <Navbar viewType={viewType} />
+      <Navbar viewGroup={viewGroup} />
 
       {/* Body */}
       <div className="flex flex-1">
         {/* Sidebar */}
-        <Sidebar viewType={viewType} setViewType={setViewType} />
+        <Sidebar viewGroup={viewGroup} setViewGroup={setViewGroup} />
 
         {/* Main Content */}
         <main className="h-full flex-1 p-6">
@@ -72,14 +70,14 @@ export default function Dashboard() {
             {/* Terminal-style path */}
             <span className="cursor-blink">
               user@cmdsheet<span className="text-white">:</span>
-              <span className="text-blue-500">~/{viewType}</span>
+              <span className="text-blue-500">~/{viewGroup}</span>
               <span className="text-white">$</span>
             </span>
 
             {/* New Snippet */}
             <button className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2">
               <FaPlus />
-              <span>new-snippet</span>
+              <span>Add snippet</span>
             </button>
           </div>
 

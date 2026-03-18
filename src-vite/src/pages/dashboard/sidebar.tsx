@@ -4,44 +4,43 @@ import {
   FaCode,
   FaHistory,
   FaLayerGroup,
+  FaPlus,
   FaStar,
 } from "react-icons/fa";
 
 interface SidebarItemProps {
-  setViewType: React.Dispatch<
-    React.SetStateAction<"recent" | "snippets" | "groups" | "favourites">
+  setViewGroup: React.Dispatch<
+    React.SetStateAction<"default" | "recent" | "favourites" | string>
   >;
-  viewType: "recent" | "snippets" | "groups" | "favourites";
+  viewGroup: "default" | "recent" | "favourites" | string;
+  label: string;
   icon: React.ReactNode;
-  label: "recent" | "snippets" | "groups" | "favourites";
   collapsed: boolean;
 }
 
 function SidebarItem(props: SidebarItemProps) {
-  const { setViewType, viewType, icon, label, collapsed } = props;
+  const { setViewGroup, viewGroup, label, icon, collapsed } = props;
   return (
     <button
       className={`flex items-center gap-3 px-3 py-2 text-[#f8f8f2] hover:bg-[#44475a] transition
-      ${viewType === label ? "bg-[#44475a]" : ""}`}
-      onClick={() => setViewType(label)}
+      ${label === viewGroup ? "bg-[#44475a]" : ""}`}
+      onClick={() => setViewGroup(viewGroup)}
     >
       <span className="text-[#8be9fd] flex items-center w-5 h-7">{icon}</span>
-      {!collapsed && (
-        <span className="flex items-center h-7">{label}</span>
-      )}
+      {!collapsed && <span className="flex items-center h-7">{label}</span>}
     </button>
   );
 }
 
 interface SidebarProps {
-  setViewType: React.Dispatch<
-    React.SetStateAction<"recent" | "snippets" | "groups" | "favourites">
+  setViewGroup: React.Dispatch<
+    React.SetStateAction<"default" | "recent" | "favourites" | string>
   >;
-  viewType: "recent" | "snippets" | "groups" | "favourites";
+  viewGroup: "default" | "recent" | "favourites" | string;
 }
 
 export default function Sidebar(props: SidebarProps) {
-  const { setViewType, viewType } = props;
+  const { setViewGroup, viewGroup } = props;
 
   // Collapse sidebar
   const [collapsed, setCollapsed] = useState(false);
@@ -67,32 +66,48 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* Links */}
       <nav className="flex flex-col gap-2 px-2">
+        {/* default, recent, favourites are permanent groups */}
         <SidebarItem
-          viewType={viewType}
-          setViewType={setViewType}
+          label="default"
+          viewGroup={viewGroup}
+          setViewGroup={setViewGroup}
           icon={<FaCode />}
-          label="snippets"
           collapsed={collapsed}
         />
         <SidebarItem
-          viewType={viewType}
-          setViewType={setViewType}
-          icon={<FaLayerGroup />}
-          label="groups"
-          collapsed={collapsed}
-        />
-        <SidebarItem
-          viewType={viewType}
-          setViewType={setViewType}
-          icon={<FaStar />}
-          label="favourites"
-          collapsed={collapsed}
-        />
-        <SidebarItem
-          viewType={viewType}
-          setViewType={setViewType}
-          icon={<FaHistory />}
           label="recent"
+          viewGroup={viewGroup}
+          setViewGroup={setViewGroup}
+          icon={<FaHistory />}
+          collapsed={collapsed}
+        />
+        <SidebarItem
+          label="favourites"
+          viewGroup={viewGroup}
+          setViewGroup={setViewGroup}
+          icon={<FaStar />}
+          collapsed={collapsed}
+        />
+
+        {/* add group button */}
+        <button
+          className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-3 px-3 py-2
+          border border-[#50fa7b] hover:border-[#bd93f9] rounded"
+        >
+          <span className="flex items-center w-5 h-7">
+            <FaPlus />
+          </span>
+          {!collapsed && (
+            <span className="flex items-center h-7">Add group</span>
+          )}
+        </button>
+
+        {/* Custom groups */}
+        <SidebarItem
+          label="favourites"
+          viewGroup={viewGroup}
+          setViewGroup={setViewGroup}
+          icon={<FaLayerGroup />}
           collapsed={collapsed}
         />
       </nav>

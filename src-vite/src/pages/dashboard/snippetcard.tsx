@@ -1,4 +1,4 @@
-import { FaCode, FaLayerGroup } from "react-icons/fa";
+import { FaCode } from "react-icons/fa";
 
 interface ItemCardProps {
   item: {
@@ -6,20 +6,18 @@ interface ItemCardProps {
     name: string;
     description: string;
     tags: string[];
-    type: "snippet" | "group";
   };
 }
 
-export default function ItemCard(props: ItemCardProps) {
+export default function SnippetCard(props: ItemCardProps) {
   const { item } = props;
-  const isSnippet = item.type === "snippet";
 
   return (
     <div className="border border-[#44475a] p-4 hover:border-[#bd93f9] transition cursor-pointer">
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        <span className={isSnippet ? "text-[#8be9fd]" : "text-[#ffb86c]"}>
-          {isSnippet ? <FaCode size={14} /> : <FaLayerGroup size={14} />}
+        <span className="text-[#8be9fd]">
+          <FaCode size={14} />
         </span>
 
         <h3 className="text-[#f8f8f2] font-medium truncate">{item.name}</h3>

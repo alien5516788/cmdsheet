@@ -1,11 +1,11 @@
 import { FaCog, FaMoon, FaSearch } from "react-icons/fa";
 
 interface NavbarProps {
-  viewType: "snippets" | "groups" | "recent" | "favourites";
+  viewGroup: "default" | "recent" | "favourites" | string;
 }
 
 export default function Navbar(props: NavbarProps) {
-  const { viewType } = props;
+  const { viewGroup } = props;
 
   return (
     <nav className="bg-[#282a36] border border-[#44475a] px-4 py-3">
@@ -18,7 +18,7 @@ export default function Navbar(props: NavbarProps) {
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6272a4]" />
           <input
             type="text"
-            placeholder={`search --${viewType}`}
+            placeholder={`search --${viewGroup}`}
             className="w-full bg-transparent text-[#f8f8f2] placeholder-[#6272a4] pl-10 pr-3 py-2 border border-[#44475a] focus:outline-none focus:border-[#bd93f9] focus:shadow-[0_0_6px_#bd93f9]"
             style={{ caretColor: "#50fa7b" }}
           />
