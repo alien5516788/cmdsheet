@@ -8,7 +8,10 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="group">
+          <Route index element={<Home />} />
+          <Route path=":groupId" element={<Dashboard />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

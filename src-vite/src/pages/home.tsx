@@ -1,4 +1,5 @@
 import { FaPlus, FaFolderOpen, FaKeyboard } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 interface HomeActionProps {
   icon: React.ReactNode;
@@ -24,6 +25,12 @@ export default function Home() {
         <p className="text-[#6272a4]">
           Your personal command and snippet workspace
         </p>
+        <Link
+          to="/group/default"
+          className="text-[#bd93f9] hover:text-[#8be9fd] transition"
+        >
+          Get Started
+        </Link>
       </div>
 
       {/* Overview */}

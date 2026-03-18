@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { FaLayerGroup, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 interface GroupItemProps {
   id: string;
   name: string;
   count: number;
   collapsed: boolean;
-  setViewGroup: React.Dispatch<
+  setGroupName: React.Dispatch<
     React.SetStateAction<"default" | "recent" | "favourites" | string>
   >;
-  viewGroup: string;
+  groupName: string;
 }
 
 export default function GroupCard(props: GroupItemProps) {
-  const { id, name, count, collapsed, setViewGroup, viewGroup } = props;
+  const { id, name, count, collapsed, setGroupName, groupName } = props;
+
+  const navigate = useNavigate();
 
   // Track if item count is hovered
   // If hovered, show delete button
@@ -23,8 +26,11 @@ export default function GroupCard(props: GroupItemProps) {
     <div
       className={`group flex items-center justify-between px-3 py-2 gap-4 cursor-pointer
       text-[#f8f8f2] hover:bg-[#44475a] transition
-      ${viewGroup === name ? "bg-[#44475a]" : ""}`}
-      onClick={() => setViewGroup(name)}
+      ${groupName === name ? "bg-[#44475a]" : ""}`}
+      onClick={() => {
+        setGroupName(name);
+        navigate(`/group/${id}`);
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
