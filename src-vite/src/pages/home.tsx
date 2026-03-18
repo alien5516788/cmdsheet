@@ -1,51 +1,63 @@
+import { FaPlus, FaFolderOpen, FaKeyboard } from "react-icons/fa";
+
+interface HomeActionProps {
+  icon: React.ReactNode;
+  label: string;
+}
+
+function HomeAction(props: HomeActionProps) {
+  const { icon, label } = props;
+  return (
+    <button className="flex items-center gap-3 text-[#50fa7b] hover:text-[#8be9fd] transition">
+      <span>{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-dracula-background flex flex-col items-center justify-center p-6 space-y-6">
-      {/* Heading */}
-      <h1 className="text-4xl font-bold text-dracula-pink animate-pulse">
-        Welcome to CmdSheet
-      </h1>
-
-      {/* Description */}
-      <p className="text-dracula-foreground text-lg text-center max-w-xl">
-        This is a test page to make sure your Tailwind + Dracula theme is
-        working correctly with React Router.
-      </p>
-
-      {/* Buttons using Dracula colors */}
-      <div className="flex gap-4 flex-wrap justify-center">
-        <button className="bg-dracula-green text-dracula-background px-4 py-2 rounded shadow hover:bg-dracula-cyan hover:text-dracula-background transition-colors">
-          Green Button
-        </button>
-        <button className="bg-dracula-orange text-dracula-background px-4 py-2 rounded shadow hover:bg-dracula-red hover:text-dracula-foreground transition-colors">
-          Orange Button
-        </button>
-        <button className="bg-dracula-purple text-dracula-background px-4 py-2 rounded shadow hover:bg-dracula-pink hover:text-dracula-foreground transition-colors">
-          Purple Button
-        </button>
-        <button className="bg-dracula-cyan text-dracula-background px-4 py-2 rounded shadow hover:bg-dracula-green hover:text-dracula-background transition-colors">
-          Cyan Button
-        </button>
+    <div className="h-full m-20 border border-[#44475a] rounded-sm flex-col items-center justify-center">
+      {/* Header */}
+      <div className="mt-20 mb-60 text-center">
+        <h1 className="text-3xl text-[#f8f8f2] mb-2">CmdSheet</h1>
+        <p className="text-[#6272a4]">
+          Your personal command and snippet workspace
+        </p>
       </div>
 
-      {/* Sample cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
-        <div className="bg-dracula-currentline p-4 rounded shadow hover:border-dracula-purple border transition-colors">
-          <h3 className="text-dracula-foreground font-semibold text-lg mb-2">
-            Snippet Card
-          </h3>
-          <p className="text-dracula-comment text-sm">
-            Example snippet card showing background and text colors.
-          </p>
+      {/* Overview */}
+      <div className="m-20 grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* Start */}
+        <div>
+          <h2 className="text-[#bd93f9] mb-4">Start</h2>
+          <div className="flex flex-col gap-3">
+            <HomeAction icon={<FaPlus />} label="create-snippet" />
+            <HomeAction icon={<FaFolderOpen />} label="open-collection" />
+            <HomeAction icon={<FaKeyboard />} label="command-palette" />
+          </div>
         </div>
 
-        <div className="bg-dracula-currentline p-4 rounded shadow hover:border-dracula-pink border transition-colors">
-          <h3 className="text-dracula-foreground font-semibold text-lg mb-2">
-            Group Card
-          </h3>
-          <p className="text-dracula-comment text-sm">
-            Example group card showing Dracula theme colors.
-          </p>
+        {/* Recent */}
+        <div>
+          <h2 className="text-[#bd93f9] mb-4">Recent</h2>
+          <ul className="text-[#8be9fd] flex flex-col gap-2">
+            <li className="hover:underline cursor-pointer">git reset --hard</li>
+            <li className="hover:underline cursor-pointer">
+              docker compose up
+            </li>
+            <li className="hover:underline cursor-pointer">nmap -sV target</li>
+          </ul>
+        </div>
+
+        {/* Tips */}
+        <div>
+          <h2 className="text-[#bd93f9] mb-4">Tips</h2>
+          <ul className="text-[#6272a4] flex flex-col gap-2">
+            <li>Use ":" to open command palette</li>
+            <li>Press Ctrl + B to toggle sidebar</li>
+            <li>Search supports tags and groups</li>
+          </ul>
         </div>
       </div>
     </div>

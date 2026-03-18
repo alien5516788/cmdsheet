@@ -1,18 +1,15 @@
-import { HashRouter, Routes, Route } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
-import Home from "./pages/home";
-import Dashboard from "./pages/dashboard";
 import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/home";
+import Dashboard from "./pages/dashboard/dashboard";
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
