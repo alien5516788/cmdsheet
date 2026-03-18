@@ -82,7 +82,7 @@ export default function Sidebar(props: SidebarProps) {
       </div>
 
       {/* Links */}
-      <nav className="flex flex-col gap-2 px-2">
+      <nav className="flex flex-col gap-2 px-2 flex-1 min-h-0 p-3">
         {/* default, recent, favourites are permanent groups */}
         <SidebarItem
           label="default"
@@ -121,8 +121,7 @@ export default function Sidebar(props: SidebarProps) {
         </button>
 
         {/* Custom groups */}
-        {/* ISSUE: List must extend to bottom of screen */}
-        <div className="h-[400px] mt-2 flex flex-col gap-1 overflow-y-auto pr-1 border border-[#44475a] rounded-sm">
+        <div className="mt-2 flex flex-col gap-1 flex-1 overflow-y-auto pr-1 min-h-0">
           {dummyGroups.map((group) => (
             <GroupCard
               key={group.id}
