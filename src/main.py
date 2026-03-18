@@ -19,7 +19,7 @@ def main():
     api = CmdsheetApi()
 
     # Create a window with the API instance passed to js_api
-    webview.create_window("App", url, js_api=api)
+    webview.create_window("App", url, height=768, width=1024, js_api=api)
     webview.start(gui="qt")
 
 

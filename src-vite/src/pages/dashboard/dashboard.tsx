@@ -6,12 +6,12 @@ import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 
 export default function Dashboard() {
-  // Extract groupId from URL params
+  // Extract groupId from url params
   const params = useParams();
   const { groupId } = params;
 
   // Dashboard is required to which group to display snippets from
-  // Group name is set from the sidebar
+  // Since dashboard does not fetch group details, groupName is set from the sidebar
   const [groupName, setGroupName] = useState<string>("default");
 
   // Fetch snippet list from API
@@ -25,16 +25,16 @@ export default function Dashboard() {
   >([]);
 
   useEffect(() => {
-    async function fetchSnippets() {
+    async function fetch_snippets() {
       try {
         const snippets = await pywebview.api.get_snippets(groupId);
         setSnippets(snippets);
       } catch (err) {
-        console.error("Failed to fetch groups:", err);
+        await pywebview.api.print_log("Log: Failed to fetch snippets\n" + err);
       }
     }
 
-    fetchSnippets();
+    fetch_snippets();
   }, [groupId]);
 
   return (

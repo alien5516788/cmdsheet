@@ -1,9 +1,12 @@
 class CmdsheetApi:
+    def print_log(self, log: str):
+        print(log)
+
     def get_groups(self):
         return [
-            {"id": "default", "default": "web-exploitation", "count": 12},
-            {"id": "recent", "recent": "reverse-engineering", "count": 8},
-            {"id": "favourites", "favourites": "docker-workflows", "count": 5},
+            {"id": "default", "default": "web-exploitation", "count": 10},
+            {"id": "recent", "recent": "reverse-engineering", "count": 20},
+            {"id": "favourites", "favourites": "docker-workflows", "count": 2},
             {"id": "g1", "name": "web-exploitation", "count": 12},
             {"id": "g2", "name": "reverse-engineering", "count": 8},
             {"id": "g3", "name": "docker-workflows", "count": 5},

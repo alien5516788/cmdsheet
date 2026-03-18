@@ -1,4 +1,5 @@
 import { FaCog, FaMoon, FaSearch } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 interface NavbarProps {
   groupName: string;
@@ -11,7 +12,9 @@ export default function Navbar(props: NavbarProps) {
     <nav className="bg-[#282a36] border border-[#44475a] px-4 py-3">
       <div className="flex items-center justify-between gap-4">
         {/* Logo */}
-        <div className="text-[#50fa7b]">cmdsheet</div>
+        <div className="text-[#50fa7b]">
+          <Link to="/">cmdsheet</Link>
+        </div>
 
         {/* Search bar */}
         <div className="flex-1 max-w-2xl relative">
