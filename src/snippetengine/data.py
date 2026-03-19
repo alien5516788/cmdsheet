@@ -1,7 +1,7 @@
 groups = [
-    {"id": "default", "default": "web-exploitation", "count": 10},
-    {"id": "recent", "recent": "reverse-engineering", "count": 20},
-    {"id": "favourites", "favourites": "docker-workflows", "count": 2},
+    {"id": "default", "count": 10},
+    {"id": "recent", "count": 20},
+    {"id": "favourites", "count": 2},
     {"id": "g1", "name": "web-exploitation", "count": 12},
     {"id": "g2", "name": "reverse-engineering", "count": 8},
     {"id": "g3", "name": "docker-workflows", "count": 5},

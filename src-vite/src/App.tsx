@@ -10,7 +10,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="group">
           <Route index element={<Home />} />
-          <Route path=":groupId" element={<Dashboard />} />
+          <Route path=":groupName" element={<Dashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

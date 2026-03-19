@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaLayerGroup, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // default, recent, favourites groups are permanent and cannot be deleted
 // This component is made specifically for the default, recent, and favourites groups
@@ -8,13 +8,18 @@ interface DefaultGroupCardProps {
   name: string;
   count: number;
   icon: React.ReactNode;
-  groupName: string;
-  setGroupName: React.Dispatch<React.SetStateAction<string>>;
   collapsed: boolean;
 }
 
 export function DefaultGroupCard(props: DefaultGroupCardProps) {
-  const { setGroupName, groupName, name, count, icon, collapsed } = props;
+  const { name, count, icon, collapsed } = props;
+
+  // Extract groupName from url params
+  // Sidebar link highlights the current group
+  const params = useParams();
+  const { groupName } = params;
+
+  // Navigate to the group page when clicked
   const navigate = useNavigate();
 
   return (
@@ -22,7 +27,6 @@ export function DefaultGroupCard(props: DefaultGroupCardProps) {
       className={`flex items-center gap-3 px-3 py-2 text-[#f8f8f2] hover:bg-[#44475a] transition
       ${name === groupName ? "bg-[#44475a]" : ""}`}
       onClick={() => {
-        setGroupName(name);
         navigate(`/group/${name}`);
       }}
     >
@@ -39,19 +43,20 @@ export function DefaultGroupCard(props: DefaultGroupCardProps) {
 
 // Apart from the default, recent, and favourites groups, custom groups are rendered with this component
 interface GroupCardProps {
-  id: string;
   name: string;
   count: number;
-  groupName: string;
-  setGroupName: React.Dispatch<
-    React.SetStateAction<"default" | "recent" | "favourites" | string>
-  >;
   collapsed: boolean;
 }
 
 export default function GroupCard(props: GroupCardProps) {
-  const { id, name, count, collapsed, setGroupName, groupName } = props;
+  const { name, count, collapsed } = props;
 
+  // Extract groupName from url params
+  // Sidebar link highlights the current group
+  const params = useParams();
+  const { groupName } = params;
+
+  // Navigate to the group page when clicked
   const navigate = useNavigate();
 
   // Track if item count is hovered
@@ -64,8 +69,7 @@ export default function GroupCard(props: GroupCardProps) {
       text-[#f8f8f2] hover:bg-[#44475a] transition
       ${groupName === name ? "bg-[#44475a]" : ""}`}
       onClick={() => {
-        setGroupName(name);
-        navigate(`/group/${id}`);
+        navigate(`/group/${name}`);
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

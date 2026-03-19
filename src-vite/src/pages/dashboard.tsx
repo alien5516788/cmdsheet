@@ -8,13 +8,10 @@ import CreateItem from "../components/popups/createitem";
 import { get_error_message } from "../utils/get_error_message";
 
 export default function Dashboard() {
-  // Extract groupId from url params
+  // Extract groupName from url params
+  // Main content of the dashboard is displayed based on the groupName
   const params = useParams();
-  const { groupId } = params;
-
-  // Dashboard is required to know which group to display snippets from
-  // Since dashboard does not fetch group details, groupName is set from the sidebar
-  const [groupName, setGroupName] = useState<string>("default");
+  const { groupName } = params;
 
   // Add a new snippet or a group
   const [createItemOpen, setCreateItemOpen] = useState<boolean>(false);
@@ -72,9 +69,8 @@ export default function Dashboard() {
   // Fetch group list from API
   const [groups, setGroups] = useState<
     {
-      id: string;
       name: string;
-      count: number;
+      snippetcount: number;
     }[]
   >([]);
 
@@ -84,6 +80,30 @@ export default function Dashboard() {
       setGroups(groups);
     } catch (err) {
       await pywebview.api.print_log("Log: Failed to fetch groups\n" + err);
+    }
+  }
+
+  // Fetch group info from API
+  const [group, setGroup] = useState<
+    {
+      name: string;
+      description: string;
+      snippetcount: number;
+      tags: string[];
+    }
+  >({
+    name: groupName || "",
+    description: "",
+    snippetcount: 0,
+    tags: [],
+  });
+
+  async function get_group() {
+    try {
+      const group = await pywebview.api.get_group();
+      setGroup(group);
+    } catch (err) {
+      await pywebview.api.print_log("Log: Failed to fetch group\n" + err);
     }
   }
 
@@ -99,7 +119,7 @@ export default function Dashboard() {
 
   async function get_snippets() {
     try {
-      const snippets = await pywebview.api.get_snippets(groupId);
+      const snippets = await pywebview.api.get_snippets(groupName);
       setSnippets(snippets);
     } catch (err) {
       await pywebview.api.print_log("Log: Failed to fetch snippets\n" + err);
@@ -116,17 +136,22 @@ export default function Dashboard() {
       await get_groups();
     }
     fetch_groups();
-  }, [groupId]);
+
+    // async function fetch_group() {
+    //   await get_group();
+    // }
+    // fetch_group();
+  }, [groupName]);
 
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
       {/* Navbar */}
-      <Navbar groupName={groupName} />
+      <Navbar groupName={groupName || "group"} />
 
       {/* Body */}
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
-        <Sidebar groups={groups} groupName={groupName} setGroupName={setGroupName} toggleCreateItemOpen={toggle_create_item_open} />
+        <Sidebar groups={groups} toggleCreateItemOpen={toggle_create_item_open} />
 
         {/* Main Content */}
         <main className="flex flex-col flex-1 min-h-0 p-3">
@@ -154,7 +179,7 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard key={item.name} item={item} />
               ))}
             </div>
           </div>

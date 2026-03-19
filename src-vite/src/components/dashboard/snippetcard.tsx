@@ -2,7 +2,6 @@ import { FaCode } from "react-icons/fa";
 
 interface ItemCardProps {
   item: {
-    id: string;
     name: string;
     description: string;
     tags: string[];

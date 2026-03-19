@@ -3,19 +3,15 @@ import { FaBars, FaCode, FaHistory, FaPlus, FaStar } from "react-icons/fa";
 import GroupCard, { DefaultGroupCard } from "./groupcard";
 
 interface SidebarProps {
-  groups: { id: string; name: string; count: number }[];
-  groupName: string;
-  setGroupName: React.Dispatch<React.SetStateAction<string>>;
+  groups: { name: string; snippetcount: number }[];
   toggleCreateItemOpen: (itemType: "snippet" | "group") => void;
 }
 
 export default function Sidebar(props: SidebarProps) {
-  const { groups, setGroupName, groupName, toggleCreateItemOpen } = props;
+  const { groups, toggleCreateItemOpen } = props;
 
   // Collapse sidebar
   const [collapsed, setCollapsed] = useState(false);
-
-
 
   return (
     <aside
@@ -37,25 +33,19 @@ export default function Sidebar(props: SidebarProps) {
         {/* default, recent, favourites are permanent groups */}
         <DefaultGroupCard
           name="default"
-          count={groups.find((g) => g.id === "default")?.count || 0}
-          groupName={groupName}
-          setGroupName={setGroupName}
+          count={groups.find((g) => g.name === "default")?.snippetcount || 0}
           icon={<FaCode />}
           collapsed={collapsed}
         />
         <DefaultGroupCard
           name="recent"
-          count={groups.find((g) => g.id === "recent")?.count || 0}
-          groupName={groupName}
-          setGroupName={setGroupName}
+          count={groups.find((g) => g.name === "recent")?.snippetcount || 0}
           icon={<FaHistory />}
           collapsed={collapsed}
         />
         <DefaultGroupCard
           name="favourites"
-          count={groups.find((g) => g.id === "favourites")?.count || 0}
-          groupName={groupName}
-          setGroupName={setGroupName}
+          count={groups.find((g) => g.name === "favourites")?.snippetcount || 0}
           icon={<FaStar />}
           collapsed={collapsed}
         />
@@ -79,17 +69,14 @@ export default function Sidebar(props: SidebarProps) {
           {groups
             .filter(
               (group) =>
-                !["default", "recent", "favourites"].includes(group.id),
+                !["default", "recent", "favourites"].includes(group.name),
             )
             .map((group) => (
               <GroupCard
-                key={group.id}
-                id={group.id}
+                key={group.name}
                 name={group.name}
-                count={group.count}
+                count={group.snippetcount}
                 collapsed={collapsed}
-                setGroupName={setGroupName}
-                groupName={groupName}
               />
             ))}
         </div>

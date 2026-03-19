@@ -16,7 +16,7 @@ else:
 
 def main():
     # Create an instance of the API class
-    api = CmdsheetApi()
+    api = CmdsheetApi(DEV)
 
     # Create a window with the API instance passed to js_api
     webview.create_window("App", url, height=768, width=1024, js_api=api)

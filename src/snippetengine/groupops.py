@@ -1,14 +1,9 @@
 import json
 
-import initdir
-from __utils__ import _read_json, _write_json
 from pydantic import BaseModel
-from tagops import add_tags, remove_tags
 
-PERMANENT_GROUPS = initdir.PERMANENT_GROUPS
-BASE_DIR = initdir.BASE_DIR
-GROUPS_DIR = BASE_DIR / "groups"
-GROUPlIST_FILE = GROUPS_DIR / "grouplist.json"
+from snippetengine.__utils__ import _read_json, _write_json
+from snippetengine.tagops import TagOps
 
 
 class Group(BaseModel):
@@ -18,135 +13,138 @@ class Group(BaseModel):
     tags: list[str]
 
 
-def list_groups(offset=0, limit=25) -> list[dict]:
-    grouplist = _read_json(GROUPlIST_FILE)
-    return grouplist[offset : offset + limit]
+class GroupOps:
+    def __init__(self, baseDir, permenentGroups):
+        self.PERMANENT_GROUPS = permenentGroups
+        self.GROUPS_DIR = baseDir / "groups"
+        self.GROUPlIST_FILE = self.GROUPS_DIR / "grouplist.json"
 
+        self.tag_ops = TagOps(baseDir)
 
-def create_group(name: str):
-    # Check for permanent group name
-    if name in PERMANENT_GROUPS:
-        raise Exception(f"Cannot create group with permanent name '{name}'")
+    def list_groups(self) -> list[dict]:
+        grouplist = _read_json(self.GROUPlIST_FILE)
+        return grouplist
 
-    # Check for existing group
-    grouplist = _read_json(GROUPlIST_FILE)
-    if any(g["name"] == name for g in grouplist):
-        raise Exception(f"Group '{name}' already exists")
+    def create_group(self, name: str):
+        # Check for permanent group name
+        if name in self.PERMANENT_GROUPS:
+            raise Exception(f"Cannot create group with permanent name '{name}'")
 
-    # Create group folder
-    group_path = GROUPS_DIR / name
-    group_path.mkdir(exist_ok=True)
+        # Check for existing group
+        grouplist = _read_json(self.GROUPlIST_FILE)
+        if any(g["name"] == name for g in grouplist):
+            raise Exception(f"Group '{name}' already exists")
 
-    # Initialize snippetlist.json
-    snippetlist_file = group_path / "snippetlist.json"
-    with snippetlist_file.open("w", encoding="utf-8") as f:
-        json.dump([], f, indent=2)
+        # Create group folder
+        group_path = self.GROUPS_DIR / name
+        group_path.mkdir(exist_ok=True)
 
-    # Add to grouplist.json
-    grouplist.append({"name": name, "description": "", "snippetcount": 0, "tags": []})
-    _write_json(GROUPlIST_FILE, grouplist)
+        # Initialize snippetlist.json
+        snippetlist_file = group_path / "snippetlist.json"
+        with snippetlist_file.open("w", encoding="utf-8") as f:
+            json.dump([], f, indent=2)
 
+        # Add to grouplist.json
+        grouplist.append(
+            {"name": name, "description": "", "snippetcount": 0, "tags": []}
+        )
+        _write_json(self.GROUPlIST_FILE, grouplist)
 
-def get_group(name: str) -> dict | None:
-    grouplist = _read_json(GROUPlIST_FILE)
-    for g in grouplist:
-        if g["id"] == id:
-            return g
-    return None
+    def get_group(self, name: str) -> dict | None:
+        grouplist = _read_json(self.GROUPlIST_FILE)
+        for g in grouplist:
+            if g["name"] == name:
+                return g
+        return None
 
+    def update_group_name(self, name: str, newName: str):
+        # Check for permanent groups
+        if name in self.PERMANENT_GROUPS:
+            raise Exception(f"Cannot rename permanent group '{name}'")
 
-def update_group_name(name: str, newName: str):
-    # Check for permanent groups
-    if name in PERMANENT_GROUPS:
-        raise Exception(f"Cannot rename permanent group '{name}'")
+        if newName in self.PERMANENT_GROUPS:
+            raise Exception(f"Cannot use permanent group name '{newName}'")
 
-    if newName in PERMANENT_GROUPS:
-        raise Exception(f"Cannot use permanent group name '{newName}'")
+        # Check for existing group names
+        grouplist = _read_json(self.GROUPlIST_FILE)
+        if any(g["name"] == newName for g in grouplist):
+            raise Exception(f"Group '{newName}' already exists")
 
-    # Check for existing group names
-    grouplist = _read_json(GROUPlIST_FILE)
-    if any(g["name"] == newName for g in grouplist):
-        raise Exception(f"Group '{newName}' already exists")
+        # Rename folder
+        old_path = self.GROUPS_DIR / name
+        new_path = self.GROUPS_DIR / newName
+        old_path.rename(new_path)
 
-    # Rename folder
-    old_path = GROUPS_DIR / name
-    new_path = GROUPS_DIR / newName
-    old_path.rename(new_path)
+        # Update grouplist.json
+        for g in grouplist:
+            if g["name"] == name:
+                g["name"] = newName
+                break
+        _write_json(self.GROUPlIST_FILE, grouplist)
 
-    # Update grouplist.json
-    for g in grouplist:
-        if g["name"] == name:
-            g["name"] = newName
-            break
-    _write_json(GROUPlIST_FILE, grouplist)
+    def update_group_description(self, name: str, description: str):
+        grouplist = _read_json(self.GROUPlIST_FILE)
 
+        for g in grouplist:
+            if g["name"] == name:
+                g["description"] = description
+                break
+        else:
+            raise Exception(f"Group '{name}' not found")
 
-def update_group_description(name: str, description: str):
-    grouplist = _read_json(GROUPlIST_FILE)
+        _write_json(self.GROUPlIST_FILE, grouplist)
 
-    for g in grouplist:
-        if g["name"] == name:
-            g["description"] = description
-            break
-    else:
-        raise Exception(f"Group '{name}' not found")
+    def update_group_snippetcount(self, name: str, delta: int):
+        grouplist = _read_json(self.GROUPlIST_FILE)
 
-    _write_json(GROUPlIST_FILE, grouplist)
+        for g in grouplist:
+            if g["name"] == name:
+                g["itemcount"] = max(0, g.get("itemcount", 0) + delta)
+                break
+        else:
+            raise Exception(f"Group '{name}' not found")
 
+        _write_json(self.GROUPlIST_FILE, grouplist)
 
-def update_group_snippetcount(name: str, delta: int):
-    grouplist = _read_json(GROUPlIST_FILE)
+    def update_group_tags(self, name: str, newTags: list[str]):
+        grouplist = _read_json(self.GROUPlIST_FILE)
 
-    for g in grouplist:
-        if g["name"] == name:
-            g["itemcount"] = max(0, g.get("itemcount", 0) + delta)
-            break
-    else:
-        raise Exception(f"Group '{name}' not found")
+        # Find the group
+        group = next((g for g in grouplist if g["name"] == name), None)
+        if not group:
+            raise Exception(f"Group '{name}' not found")
 
-    _write_json(GROUPlIST_FILE, grouplist)
+        old_tags = group.get("tags", [])
 
+        # Update group tags
+        group["tags"] = newTags
 
-def update_group_tags(name: str, newTags: list[str]):
-    grouplist = _read_json(GROUPlIST_FILE)
+        # Determine which tags to add/remove from global taglist
+        old_set = set(old_tags)
+        new_set = set(newTags)
 
-    # Find the group
-    group = next((g for g in grouplist if g["name"] == name), None)
-    if not group:
-        raise Exception(f"Group '{name}' not found")
+        tags_to_add = list(new_set - old_set)
+        tags_to_remove = list(old_set - new_set)
 
-    old_tags = group.get("tags", [])
+        if tags_to_add:
+            self.tag_ops.add_tags(tags_to_add)
+        if tags_to_remove:
+            self.tag_ops.remove_tags(tags_to_remove)
 
-    # Update group tags
-    group["tags"] = newTags
+        _write_json(self.GROUPlIST_FILE, grouplist)
 
-    # Determine which tags to add/remove from global taglist
-    old_set = set(old_tags)
-    new_set = set(newTags)
+    def delete_group(self, name: str):
+        # Check for permanent groups
+        if name in self.PERMANENT_GROUPS:
+            raise Exception(f"Cannot delete permanent group '{name}'")
 
-    tags_to_add = list(new_set - old_set)
-    tags_to_remove = list(old_set - new_set)
+        grouplist = _read_json(self.GROUPlIST_FILE)
+        new_list = [g for g in grouplist if g["name"] != name]
+        _write_json(self.GROUPlIST_FILE, new_list)
 
-    if tags_to_add:
-        add_tags(tags_to_add)
-    if tags_to_remove:
-        remove_tags(tags_to_remove)
-
-    _write_json(GROUPlIST_FILE, grouplist)
-
-
-def delete_group(name: str):
-    # Check for permanent groups
-    if name in PERMANENT_GROUPS:
-        raise Exception(f"Cannot delete permanent group '{name}'")
-
-    grouplist = _read_json(GROUPlIST_FILE)
-    new_list = [g for g in grouplist if g["name"] != name]
-    _write_json(GROUPlIST_FILE, new_list)
-
-    # Delete group folder and all files
-    group_path = GROUPS_DIR / name
-    if group_path.exists():
-        for f in group_path.iterdir():
-            f.unlink()
-        group_path.rmdir()
+        # Delete group folder and all files
+        group_path = self.GROUPS_DIR / name
+        if group_path.exists():
+            for f in group_path.iterdir():
+                f.unlink()
+            group_path.rmdir()
