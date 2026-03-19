@@ -1,39 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaBars, FaCode, FaHistory, FaPlus, FaStar } from "react-icons/fa";
 import GroupCard, { DefaultGroupCard } from "./groupcard";
 
 interface SidebarProps {
-  setGroupName: React.Dispatch<React.SetStateAction<string>>;
+  groups: { id: string; name: string; count: number }[];
   groupName: string;
+  setGroupName: React.Dispatch<React.SetStateAction<string>>;
+  toggleCreateItemOpen: (itemType: "snippet" | "group") => void;
 }
 
 export default function Sidebar(props: SidebarProps) {
-  const { setGroupName, groupName } = props;
+  const { groups, setGroupName, groupName, toggleCreateItemOpen } = props;
 
   // Collapse sidebar
   const [collapsed, setCollapsed] = useState(false);
 
-  // Fetch group list from API
-  const [groups, setGroups] = useState<
-    {
-      id: string;
-      name: string;
-      count: number;
-    }[]
-  >([]);
 
-  useEffect(() => {
-    async function fetch_groups() {
-      try {
-        const groups = await pywebview.api.get_groups();
-        setGroups(groups);
-      } catch (err) {
-        await pywebview.api.print_log("Log: Failed to fetch groups\n" + err);
-      }
-    }
-
-    fetch_groups();
-  }, []);
 
   return (
     <aside
@@ -82,6 +64,7 @@ export default function Sidebar(props: SidebarProps) {
         <button
           className="text-[#50fa7b] hover:text-[#8be9fd] transition flex justify-center items-center gap-3 px-3 py-1
           border border-[#50fa7b] hover:border-[#bd93f9] rounded"
+          onClick={() => toggleCreateItemOpen("group")}
         >
           <span className="flex items-center w-5 h-7">
             <FaPlus />
