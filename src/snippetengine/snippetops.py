@@ -63,6 +63,14 @@ class SnippetOps:
         # Update group snippet count
         self.group_ops.update_group_snippetcount(groupName, 1)
 
+    def get_snippet(self, groupName: str, snippetName: str) -> dict | None:
+        snippetlist_file = self._get_snippetlist_file(groupName)
+        snippetlist = _read_json(snippetlist_file)
+        for s in snippetlist:
+            if s["name"] == snippetName:
+                return s
+        return None
+
     def update_snippet_name(self, groupName: str, old_name: str, new_name: str):
         snippetlist_file = self._get_snippetlist_file(groupName)
         snippetlist = _read_json(snippetlist_file)

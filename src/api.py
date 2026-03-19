@@ -35,6 +35,9 @@ class CmdsheetApi:
     def get_snippets(self, groupName: str):
         return self._snippet_ops.list_snippets(groupName)
 
+    def get_snippet(self, groupName: str, snippetName: str):
+        return self._snippet_ops.get_snippet(groupName, snippetName)
+
     def create_item(self, itemType: str, name: str, groupName: str, description: str):
         try:
             if itemType == "group":

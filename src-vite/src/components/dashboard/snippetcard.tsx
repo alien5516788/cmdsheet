@@ -1,4 +1,6 @@
-import { FaCode } from "react-icons/fa";
+import { useState } from "react";
+import { FaCode, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 interface ItemCardProps {
   item: {
@@ -6,13 +8,26 @@ interface ItemCardProps {
     description: string;
     tags: string[];
   };
+  groupName: string;
 }
 
 export default function SnippetCard(props: ItemCardProps) {
-  const { item } = props;
+  const { item, groupName } = props;
+
+  const navigate = useNavigate();
+
+  // Track if item count is hovered
+  // If hovered, show delete button
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div className="border border-[#44475a] p-4 hover:border-[#bd93f9] transition cursor-pointer">
+    <div className="border border-[#44475a] p-4 hover:border-[#bd93f9] transition cursor-pointer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => {
+        navigate(`/group/${groupName}/${item.name}`);
+      }}
+    >
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
         <span className="text-[#8be9fd]">
@@ -20,6 +35,12 @@ export default function SnippetCard(props: ItemCardProps) {
         </span>
 
         <h3 className="text-[#f8f8f2] font-medium truncate">{item.name}</h3>
+
+        {hovered &&
+          <span className="text-[#ff5555] hover:text-[#ff79c6] ml-auto">
+            <FaTrash size={14} />
+          </span>
+        }
       </div>
 
       {/* Description */}
