@@ -80,7 +80,7 @@ export default function Sidebar(props: SidebarProps) {
 
         {/* Add group button */}
         <button
-          className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-3 px-3 py-1
+          className="text-[#50fa7b] hover:text-[#8be9fd] transition flex justify-center items-center gap-3 px-3 py-1
           border border-[#50fa7b] hover:border-[#bd93f9] rounded"
         >
           <span className="flex items-center w-5 h-7">

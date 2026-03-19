@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import ItemCard from "./snippetcard";
-import Navbar from "./navbar";
-import Sidebar from "./sidebar";
+import ItemCard from "../components/dashboard/snippetcard";
+import Navbar from "../components/dashboard/navbar";
+import Sidebar from "../components/dashboard/sidebar";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 
