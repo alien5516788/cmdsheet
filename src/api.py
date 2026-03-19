@@ -1,4 +1,4 @@
-from database.data import groups, snippets
+from snippetengine.data import groups, snippets
 
 
 class CmdsheetApi:
