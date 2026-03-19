@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ItemCard from "../components/dashboard/snippetcard";
 import Navbar from "../components/dashboard/navbar";
 import Sidebar from "../components/dashboard/sidebar";
-import { FaPlus } from "react-icons/fa";
+import { FaPen, FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
 import { get_error_message } from "../utils/get_error_message";
@@ -29,27 +29,20 @@ export default function Dashboard() {
     setCreateItemOpen(true);
   }
 
-  async function check_create_item(itemType: "snippet" | "group", name: string) {
-    try {
-      const response = await pywebview.api.check_item(itemType, name);
-      setCreateItemStatus(response);
-    } catch (err: unknown) {
-      await pywebview.api.print_log(get_error_message(err));
-    }
-  }
-
   async function confirm_create_item(
     itemType: "snippet" | "group",
     name: string,
+    groupName: string, // only used for snippets
     description: string,
   ) {
     try {
       const response = await pywebview.api.create_item(
         itemType,
         name,
+        groupName,
         description,
       );
-      if (response.status === "error") {
+      if (response.status != "default") {
         setCreateItemStatus(response);
       } else {
         setCreateItemOpen(false);
@@ -100,7 +93,7 @@ export default function Dashboard() {
 
   async function get_group() {
     try {
-      const group = await pywebview.api.get_group();
+      const group = await pywebview.api.get_group(groupName);
       setGroup(group);
     } catch (err) {
       await pywebview.api.print_log("Log: Failed to fetch group\n" + err);
@@ -127,20 +120,20 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    async function fetch_snippets() {
-      await get_snippets();
-    }
-    fetch_snippets();
-
     async function fetch_groups() {
       await get_groups();
     }
     fetch_groups();
 
-    // async function fetch_group() {
-    //   await get_group();
-    // }
-    // fetch_group();
+    async function fetch_group() {
+      await get_group();
+    }
+    fetch_group();
+
+    async function fetch_snippets() {
+      await get_snippets();
+    }
+    fetch_snippets();
   }, [groupName]);
 
   return (
@@ -175,6 +168,52 @@ export default function Dashboard() {
             </button>
           </div>
 
+          {/* Group Info */}
+          <div className="mb-4 p-3 bg-[#2c2e3a] rounded text-[#f8f8f2] opacity-80">
+            {/* Tags Row */}
+            <div className="flex justify-between items-center mb-2">
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2">
+                {group.tags.length > 0 ? (
+                  group.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-[#6272a4] text-[#f8f8f2] px-2 py-0.5 rounded text-xs"
+                    >
+                      {tag}
+                    </span>
+                  ))
+                ) : (
+                  <span className="bg-[#6272a4] text-[#f8f8f2] text-xs px-2 py-0.5 rounded">
+                    <i>No tags</i>
+                  </span>
+                )}
+              </div>
+
+              {/* Add tags */}
+              <button
+                className="px-1 py-1 rounded text-sm transition"
+                onClick={() => console.log("Add Description clicked")}
+              >
+                <FaPlus className="text-[#6272a4] hover:text-[#8be9fd]" />
+              </button>
+            </div>
+
+            {/* Description Row */}
+            <div className="flex justify-between items-start mt-4">
+              {/* Description */}
+              <p className="text-[#6272a4]">
+                {group.description || "No description available."}
+              </p>
+              {/* Edit Description */}
+              <button
+                className="px-1 py-1 rounded text-sm transition"
+              >
+                <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
+              </button>
+            </div>
+          </div>
+
           {/* Content box */}
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -191,7 +230,6 @@ export default function Dashboard() {
         createItemOpen && (
           <CreateItem
             itemType={createItemType}
-            onChange={check_create_item}
             onConfirm={confirm_create_item}
             onClose={cancel_create_item}
             status={createItemStatus}

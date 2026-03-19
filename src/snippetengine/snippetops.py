@@ -29,16 +29,26 @@ class SnippetOps:
         snippets = _read_json(snippetlist_file)
         return snippets
 
-    def create_snippet(self, name: str, groupName: str):
+    def create_snippet(self, name: str, groupName: str, description: str = ""):
         snippetlist_file = self._get_snippetlist_file(groupName)
         snippetlist = _read_json(snippetlist_file)
+
+        # Check for reserved name
+        if name == "snippetlist":
+            raise Exception(f"Cannot use a reserved name '{name}'")
+
+        # Check for prohibited group
+        if groupName == "recent":
+            raise Exception(
+                f"Cannot manually create snippets in the group '{groupName}'"
+            )
 
         # Check for duplicate name
         if any(s["name"] == name for s in snippetlist):
             raise Exception(f"Snippet with name '{name}' already exists")
 
         # Add snippet entry to snippetlist.json
-        snippetlist.append({"name": name, "description": "", "tags": []})
+        snippetlist.append({"name": name, "description": description, "tags": []})
         _write_json(snippetlist_file, snippetlist)
 
         # Create snippet file

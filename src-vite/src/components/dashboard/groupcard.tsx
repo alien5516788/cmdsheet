@@ -6,13 +6,13 @@ import { useNavigate, useParams } from "react-router-dom";
 // This component is made specifically for the default, recent, and favourites groups
 interface DefaultGroupCardProps {
   name: string;
-  count: number;
+  snippetCount: number;
   icon: React.ReactNode;
   collapsed: boolean;
 }
 
 export function DefaultGroupCard(props: DefaultGroupCardProps) {
-  const { name, count, icon, collapsed } = props;
+  const { name, snippetCount, icon, collapsed } = props;
 
   // Extract groupName from url params
   // Sidebar link highlights the current group
@@ -34,7 +34,7 @@ export function DefaultGroupCard(props: DefaultGroupCardProps) {
       {!collapsed && (
         <>
           <span className="flex items-center h-7">{name}</span>
-          <span className="text-xs text-[#6272a4] ml-auto">{count}</span>
+          <span className="text-xs text-[#6272a4] ml-auto">{snippetCount}</span>
         </>
       )}
     </button>
@@ -44,12 +44,12 @@ export function DefaultGroupCard(props: DefaultGroupCardProps) {
 // Apart from the default, recent, and favourites groups, custom groups are rendered with this component
 interface GroupCardProps {
   name: string;
-  count: number;
+  snippetCount: number;
   collapsed: boolean;
 }
 
 export default function GroupCard(props: GroupCardProps) {
-  const { name, count, collapsed } = props;
+  const { name, snippetCount, collapsed } = props;
 
   // Extract groupName from url params
   // Sidebar link highlights the current group
@@ -92,14 +92,14 @@ export default function GroupCard(props: GroupCardProps) {
               className="opacity-0 group-hover:opacity-100 text-[#ff5555] hover:text-[#ff79c6] transition"
               onClick={(e) => {
                 e.stopPropagation();
-                console.log("delete group", id);
+                console.log("delete group");
               }}
             >
               <FaTrash size={12} />
             </button>
           ) : (
             // Count
-            <span className="text-xs text-[#6272a4]">{count}</span>
+            <span className="text-xs text-[#6272a4]">{snippetCount}</span>
           )}
         </div>
       )}

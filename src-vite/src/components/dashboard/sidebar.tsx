@@ -33,19 +33,19 @@ export default function Sidebar(props: SidebarProps) {
         {/* default, recent, favourites are permanent groups */}
         <DefaultGroupCard
           name="default"
-          count={groups.find((g) => g.name === "default")?.snippetcount || 0}
+          snippetCount={groups.find((g) => g.name === "default")?.snippetcount || 0}
           icon={<FaCode />}
           collapsed={collapsed}
         />
         <DefaultGroupCard
           name="recent"
-          count={groups.find((g) => g.name === "recent")?.snippetcount || 0}
+          snippetCount={groups.find((g) => g.name === "recent")?.snippetcount || 0}
           icon={<FaHistory />}
           collapsed={collapsed}
         />
         <DefaultGroupCard
           name="favourites"
-          count={groups.find((g) => g.name === "favourites")?.snippetcount || 0}
+          snippetCount={groups.find((g) => g.name === "favourites")?.snippetcount || 0}
           icon={<FaStar />}
           collapsed={collapsed}
         />
@@ -75,7 +75,7 @@ export default function Sidebar(props: SidebarProps) {
               <GroupCard
                 key={group.name}
                 name={group.name}
-                count={group.snippetcount}
+                snippetCount={group.snippetcount}
                 collapsed={collapsed}
               />
             ))}

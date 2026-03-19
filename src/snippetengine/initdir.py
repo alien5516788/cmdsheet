@@ -6,15 +6,14 @@ class InitDir:
     def __init__(self, baseDir: Path, permanentGroup: list[str]):
         self.BASE_DIR = baseDir
         self.PERMANENT_GROUPS = permanentGroup
-        self.initdir()
 
-    def initdir(self):
+    def ensure(self):
         # Create base directory
-        self.BASE_DIR.mkdir(exist_ok=True)
+        self.BASE_DIR.mkdir(parents=True, exist_ok=True)
 
         # Create groups directory
         groups_dir = self.BASE_DIR / "groups"
-        groups_dir.mkdir(exist_ok=True)
+        groups_dir.mkdir(parents=True, exist_ok=True)
 
         # Create permanent group folders
         for group_name in self.PERMANENT_GROUPS:

@@ -24,19 +24,21 @@ export default function SnippetCard(props: ItemCardProps) {
 
       {/* Description */}
       <p className="text-[#6272a4] text-sm line-clamp-2 mb-3">
-        {item.description}
+        {item.description || "No description available."}
       </p>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 overflow-hidden max-h-[52px]">
-        {item.tags.slice(0, 10).map((tag, index) => (
-          <span
-            key={index}
-            className="text-xs text-[#50fa7b] border border-[#44475a] px-2 py-[2px] truncate max-w-[100px]"
-          >
-            {tag}
+        {item.tags.length > 0 ?
+          item.tags.slice(0, 10).map((tag, index) => (
+            <span key={index} className="bg-[#6272a4] text-[#f8f8f2] text-xs px-2 py-[2px] truncate max-w-[100px] rounded">
+              {tag}
+            </span>
+          )) :
+          <span className="bg-[#6272a4] text-[#f8f8f2] text-xs px-2 py-[2px] truncate max-w-[100px] rounded">
+            <i>No tags</i>
           </span>
-        ))}
+        }
       </div>
     </div>
   );
