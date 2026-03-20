@@ -4,11 +4,11 @@ import GroupCard, { DefaultGroupCard } from "./groupcard";
 
 interface SidebarProps {
   groups: { name: string; snippetcount: number }[];
-  toggleCreateItemOpen: (itemType: "snippet" | "group") => void;
+  openCreateItem: (itemType: "snippet" | "group") => void;
 }
 
 export default function Sidebar(props: SidebarProps) {
-  const { groups, toggleCreateItemOpen } = props;
+  const { groups, openCreateItem } = props;
 
   // Collapse sidebar
   const [collapsed, setCollapsed] = useState(false);
@@ -54,7 +54,7 @@ export default function Sidebar(props: SidebarProps) {
         <button
           className="text-[#50fa7b] hover:text-[#8be9fd] transition flex justify-center items-center gap-3 px-3 py-1
           border border-[#50fa7b] hover:border-[#bd93f9] rounded"
-          onClick={() => toggleCreateItemOpen("group")}
+          onClick={() => openCreateItem("group")}
         >
           <span className="flex items-center w-5 h-7">
             <FaPlus />

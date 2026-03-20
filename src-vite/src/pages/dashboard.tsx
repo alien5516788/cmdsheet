@@ -5,7 +5,7 @@ import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
-import { get_error_message } from "../utils/get_error_message";
+import { get_group, get_groups, get_snippets, create_item } from "../api";
 
 export default function Dashboard() {
   // Extract groupName from url params
@@ -19,39 +19,32 @@ export default function Dashboard() {
     "snippet",
   );
   const [createItemStatus, setCreateItemStatus] = useState<{
-    status: "default" | "error" | "warning";
+    status: "default" | "error";
     message: string;
   }>({ status: "default", message: "" });
 
-  function toggle_create_item_open(itemType: "snippet" | "group") {
+  function open_create_item(itemType: "snippet" | "group") {
     setCreateItemType(itemType);
     setCreateItemStatus({ status: "default", message: "" });
     setCreateItemOpen(true);
   }
 
-  async function confirm_create_item(
-    itemType: "snippet" | "group",
-    name: string,
-    groupName: string, // only used for snippets
-    description: string,
-  ) {
-    try {
-      const response = await pywebview.api.create_item(
-        itemType,
-        name,
-        groupName,
-        description,
-      );
-      if (response.status != "default") {
-        setCreateItemStatus(response);
-      } else {
-        setCreateItemOpen(false);
-        await get_snippets();
-        await get_groups();
-      }
-    } catch (err: unknown) {
-      await pywebview.api.print_log(get_error_message(err));
+  async function confirm_create_item(itemType: "snippet" | "group", name: string, groupName: string, description: string) {
+    const response = await create_item(itemType, name, groupName, description);
+
+    if (!response.status) {
+      setCreateItemStatus({ status: "error", message: response.message });
+      return;
     }
+
+    setCreateItemOpen(false);
+    setCreateItemStatus({ status: "default", message: "" })
+
+    const groups = await get_groups();
+    setGroups(groups.status ? groups.groups : []);
+
+    const snippets = await get_snippets(groupName || "default");
+    setSnippets(snippets.status ? snippets.snippets : []);
   }
 
   function cancel_create_item() {
@@ -59,7 +52,7 @@ export default function Dashboard() {
     setCreateItemStatus({ status: "default", message: "" });
   }
 
-  // Fetch group list from API
+  // Group list
   const [groups, setGroups] = useState<
     {
       name: string;
@@ -67,16 +60,7 @@ export default function Dashboard() {
     }[]
   >([]);
 
-  async function get_groups() {
-    try {
-      const groups = await pywebview.api.get_groups();
-      setGroups(groups);
-    } catch (err) {
-      await pywebview.api.print_log("Log: Failed to fetch groups\n" + err);
-    }
-  }
-
-  // Fetch group info from API
+  // Current group
   const [group, setGroup] = useState<
     {
       name: string;
@@ -91,16 +75,7 @@ export default function Dashboard() {
     tags: [],
   });
 
-  async function get_group() {
-    try {
-      const group = await pywebview.api.get_group(groupName);
-      setGroup(group);
-    } catch (err) {
-      await pywebview.api.print_log("Log: Failed to fetch group\n" + err);
-    }
-  }
-
-  // Fetch snippet list from API
+  // Snippet list of current group
   const [snippets, setSnippets] = useState<
     {
       id: string;
@@ -110,41 +85,30 @@ export default function Dashboard() {
     }[]
   >([]);
 
-  async function get_snippets() {
-    try {
-      const snippets = await pywebview.api.get_snippets(groupName);
-      setSnippets(snippets);
-    } catch (err) {
-      await pywebview.api.print_log("Log: Failed to fetch snippets\n" + err);
-    }
-  }
 
   useEffect(() => {
-    async function fetch_groups() {
-      await get_groups();
-    }
-    fetch_groups();
+    async function get_dashboard_info() {
+      let response = await get_groups();
+      setGroups(response.status ? response.groups : []);
 
-    async function fetch_group() {
-      await get_group();
-    }
-    fetch_group();
+      response = await get_group(groupName || "default");
+      setGroup(response.status ? response.group : { name: groupName || "default", description: "", snippetcount: 0, tags: [] });
 
-    async function fetch_snippets() {
-      await get_snippets();
+      response = await get_snippets(groupName || "default");
+      setSnippets(response.status ? response.snippets : []);
     }
-    fetch_snippets();
+    get_dashboard_info();
   }, [groupName]);
 
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
       {/* Navbar */}
-      <Navbar groupName={groupName || "group"} />
+      <Navbar groupName={groupName || "default"} />
 
       {/* Body */}
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
-        <Sidebar groups={groups} toggleCreateItemOpen={toggle_create_item_open} />
+        <Sidebar groups={groups} openCreateItem={open_create_item} />
 
         {/* Main Content */}
         <main className="flex flex-col flex-1 min-h-0 p-3">
@@ -161,7 +125,7 @@ export default function Dashboard() {
             <button
               className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2 px-3 py-1
               border border-[#50fa7b] hover:border-[#bd93f9] rounded"
-              onClick={() => toggle_create_item_open("snippet")}
+              onClick={() => open_create_item("snippet")}
             >
               <FaPlus />
               <span>Add snippet</span>
@@ -190,27 +154,20 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Add tags */}
+              {/* Edit info */}
               <button
                 className="px-1 py-1 rounded text-sm transition"
                 onClick={() => console.log("Add Description clicked")}
               >
-                <FaPlus className="text-[#6272a4] hover:text-[#8be9fd]" />
+                <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
               </button>
             </div>
 
-            {/* Description Row */}
-            <div className="flex justify-between items-start mt-4">
-              {/* Description */}
+            {/* Description */}
+            <div className="flex justify-between items-start mt-4 mr-2">
               <p className="text-[#6272a4]">
                 {group.description || "No description available."}
               </p>
-              {/* Edit Description */}
-              <button
-                className="px-1 py-1 rounded text-sm transition"
-              >
-                <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
-              </button>
             </div>
           </div>
 
@@ -236,6 +193,16 @@ export default function Dashboard() {
           />
         )
       }
+      {/*<EditItem
+        itemType={editItemType}
+        initialName={editItemName}
+        initialDescription={editItemDescription}
+        initialTags={editItemTags}
+        onConfirm={update_item}
+        onClose={cancel_edit_item}
+        status={editStatus}
+      />*/}
+
     </div>
   );
 }

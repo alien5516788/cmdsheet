@@ -27,16 +27,32 @@ class CmdsheetApi:
         print(log)
 
     def get_groups(self):
-        return self._group_ops.list_groups()
+        try:
+            groups = self._group_ops.list_groups()
+        except Exception as e:
+            return {"status": False, "message": str(e)}
+        return {"status": True, "groups": groups}
 
     def get_group(self, name: str):
-        return self._group_ops.get_group(name)
+        try:
+            group = self._group_ops.get_group(name)
+        except Exception as e:
+            return {"status": False, "message": str(e)}
+        return {"status": True, "group": group}
 
     def get_snippets(self, groupName: str):
-        return self._snippet_ops.list_snippets(groupName)
+        try:
+            snippets = self._snippet_ops.list_snippets(groupName)
+        except Exception as e:
+            return {"status": False, "message": str(e)}
+        return {"status": True, "snippets": snippets}
 
     def get_snippet(self, groupName: str, snippetName: str):
-        return self._snippet_ops.get_snippet(groupName, snippetName)
+        try:
+            snippet = self._snippet_ops.get_snippet(groupName, snippetName)
+        except Exception as e:
+            return {"status": False, "message": str(e)}
+        return {"status": True, "snippet": snippet}
 
     def create_item(self, itemType: str, name: str, groupName: str, description: str):
         try:
@@ -45,5 +61,5 @@ class CmdsheetApi:
             elif itemType == "snippet":
                 self._snippet_ops.create_snippet(name, groupName, description)
         except Exception as e:
-            return {"status": "error", "message": str(e)}
-        return {"status": "default", "message": ""}
+            return {"status": False, "message": str(e)}
+        return {"status": True}

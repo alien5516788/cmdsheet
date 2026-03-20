@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaPen, FaPlus } from "react-icons/fa";
+import { FaArrowLeft, FaPen } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import { get_error_message } from "../utils/get_error_message";
+import { get_snippet } from "../api";
 
 interface Snippet {
   id: string;
@@ -13,7 +13,6 @@ interface Snippet {
 
 export default function SnippetView() {
   const { groupName, snippetName } = useParams();
-
   const navigate = useNavigate();
 
   const [snippet, setSnippet] = useState<Snippet>({
@@ -24,21 +23,13 @@ export default function SnippetView() {
     content: "",
   });
 
-  async function get_snippet() {
-    try {
-      const response = await pywebview.api.get_snippet(groupName, snippetName);
-      setSnippet(response);
-    } catch (err: unknown) {
-      await pywebview.api.print_log(get_error_message(err));
-    }
-  }
-
   useEffect(() => {
-    async function fetch_snippet() {
-      await get_snippet();
+    async function get_snippetview_info() {
+      const response = await get_snippet(groupName || "default", snippetName || "");
+      setSnippet(response.status ? response.snippet : {});
     }
-    fetch_snippet();
-  }, [snippetName]);
+    get_snippetview_info();
+  }, [snippetName, groupName]);
 
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
@@ -56,10 +47,12 @@ export default function SnippetView() {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col overflow-y-auto p-4">
-          {/* Snippet Header */}
-          <div className="mb-4 bg-[#2c2e3a] p-3">
-            <h2 className="text-[#8be9fd] text-xl font-medium">{snippet.name}</h2>
 
+          {/* Snippet Header */}
+          <h2 className="text-[#8be9fd] text-xl font-medium mb-3">{snippet.name}</h2>
+
+          {/* Snippet info */}
+          <div className="mb-4 bg-[#2c2e3a] p-3">
             {/* Tags */}
             <div className="flex flex-wrap gap-2 my-2">
               {snippet.tags.length > 0 ? (
@@ -76,24 +69,18 @@ export default function SnippetView() {
                   <i>No tags</i>
                 </span>
               )}
-              {/* Add tag button (optional) */}
+              {/* Edit info */}
               <button
                 className="px-1 py-1 rounded text-sm transition ml-auto"
-                onClick={() => console.log("Add tag clicked")}
-              >
-                <FaPlus className="text-[#6272a4] hover:text-[#8be9fd]" />
-              </button>
-            </div>
-
-            {/* Description */}
-            <div className="flex justify-between items-start mt-2 mb-4">
-              <p className="text-[#6272a4]">{snippet.description || "No description available."}</p>
-              <button
-                className="px-1 py-1 rounded text-sm transition"
                 onClick={() => console.log("Edit description clicked")}
               >
                 <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
               </button>
+            </div>
+
+            {/* Description */}
+            <div className="flex justify-between items-start mt-3 mb-4 mr-6">
+              <p className="text-[#6272a4]">{snippet.description || "No description available."}</p>
             </div>
           </div>
 
