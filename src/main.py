@@ -2,7 +2,7 @@ import os
 
 import webview
 
-from api import CmdsheetApi
+from api import Api
 
 # Page is loaded from a dev server during development
 DEV = True
@@ -16,7 +16,7 @@ else:
 
 def main():
     # Create an instance of the API class
-    api = CmdsheetApi(DEV)
+    api = Api(DEV)
 
     # Create a window with the API instance passed to js_api
     webview.create_window("App", url, height=768, width=1024, js_api=api)
