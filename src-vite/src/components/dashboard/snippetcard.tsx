@@ -37,9 +37,12 @@ export default function SnippetCard(props: ItemCardProps) {
         <h3 className="text-[#f8f8f2] font-medium truncate">{item.name}</h3>
 
         {hovered &&
-          <span className="text-[#ff5555] hover:text-[#ff79c6] ml-auto">
+          <button className="text-[#ff5555] hover:text-[#ff79c6] ml-auto" onClick={(e) => {
+            e.stopPropagation();
+            console.log("delete snippet");
+          }}>
             <FaTrash size={14} />
-          </span>
+          </button>
         }
       </div>
 

@@ -4,11 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { get_snippet } from "../api";
 
 interface Snippet {
-  id: string;
   name: string;
   description: string;
   tags: string[];
-  content: string; // the actual snippet content
+  content: object; // the actual snippet content
+  favourite: boolean;
 }
 
 export default function SnippetView() {
@@ -16,11 +16,11 @@ export default function SnippetView() {
   const navigate = useNavigate();
 
   const [snippet, setSnippet] = useState<Snippet>({
-    id: "",
     name: "",
     description: "",
     tags: [],
-    content: "",
+    content: {},
+    favourite: false,
   });
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function SnippetView() {
 
           {/* Snippet Content */}
           <div className="flex-1 bg-[#2c2e3a] rounded p-4 overflow-auto text-sm font-mono whitespace-pre-wrap">
-            {snippet.content || "// No content yet"}
+            {snippet.content.toString() || "// No content yet"}
           </div>
         </main>
       </div>

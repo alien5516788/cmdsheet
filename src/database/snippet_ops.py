@@ -34,6 +34,7 @@ class SnippetOps:
 
         return [
             {
+                "id": snippet.id,
                 "name": snippet.name,
                 "description": snippet.description,
                 "tags": [tag.name for tag in snippet.tags],
@@ -57,7 +58,7 @@ class SnippetOps:
         }
 
     def create_snippet(self, groupName: str, name: str, description: str):
-        if name.strip() == "":
+        if name == "":
             raise Exception("Snippet name cannot be empty")
 
         group = self.group_ops._assert_group(groupName)

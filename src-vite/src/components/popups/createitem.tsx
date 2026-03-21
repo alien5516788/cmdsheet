@@ -5,8 +5,8 @@ interface CreateItemProps {
   itemType: "snippet" | "group";
   onConfirm: (
     itemType: "snippet" | "group",
-    name: string,
     groupName: string,
+    name: string,
     description: string,
   ) => void;
   onClose: () => void;
@@ -97,7 +97,7 @@ export default function CreateItem(props: CreateItemProps) {
           </button>
           <button
             className={`px-4 py-2 rounded transition ${currentTheme.button}`}
-            onClick={() => onConfirm(itemType, name, groupName || "default", description)}
+            onClick={() => onConfirm(itemType, groupName || "default", name, description)}
           >
             Confirm
           </button>

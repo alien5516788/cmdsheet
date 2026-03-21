@@ -22,17 +22,18 @@ class GroupOps:
 
     def get_groups(self):
         groups = self.session.execute(
-            select(Group.name, func.count(Snippet.id))
+            select(Group.id, Group.name, func.count(Snippet.id))
             .outerjoin(Snippet, Snippet.group_id == Group.id)
             .group_by(Group.id, Group.name)
         ).all()
 
         return [
             {
+                "id": id,
                 "name": name,
                 "snippetCount": count,
             }
-            for name, count in groups
+            for id, name, count in groups
         ]
 
     def get_group(self, name: str):
@@ -44,10 +45,10 @@ class GroupOps:
         }
 
     def create_group(self, name: str, description: str):
-        if name.strip() == "":
+        if name == "":
             raise Exception("Group name cannot be empty")
 
-        if name.strip() == "default":
+        if name == "default":
             raise Exception("Cannot use permanent group name 'default'")
 
         self._assert_no_group(name)
@@ -73,6 +74,9 @@ class GroupOps:
         self.session.commit()
 
     def delete_group(self, name: str):
+        if name == "default":
+            raise Exception("Cannot delete permanent group 'default'")
+
         # TODO: Review and test this function
         group = self._assert_group(name)
         orphan_tags = set(tag for snippet in group.snippets for tag in snippet.tags)

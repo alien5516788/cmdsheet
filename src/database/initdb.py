@@ -21,6 +21,9 @@ class InitDB:
         # Session factory
         self.session_maker = sessionmaker(bind=engine, expire_on_commit=False)
 
+        # Create default group if it doesn't exist
+        self.create_default_group()
+
         print(f"Database initialized at {db_path}")
 
     def get_session(self) -> Session:

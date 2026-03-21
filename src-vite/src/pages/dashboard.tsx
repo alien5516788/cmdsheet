@@ -29,8 +29,8 @@ export default function Dashboard() {
     setCreateItemOpen(true);
   }
 
-  async function confirm_create_item(itemType: "snippet" | "group", name: string, groupName: string, description: string) {
-    const response = await create_item(itemType, name, groupName, description);
+  async function confirm_create_item(itemType: "snippet" | "group", groupName: string, name: string, description: string) {
+    const response = await create_item(itemType, groupName, name, description);
 
     if (!response.status) {
       setCreateItemStatus({ status: "error", message: response.message });
@@ -55,6 +55,7 @@ export default function Dashboard() {
   // Group list
   const [groups, setGroups] = useState<
     {
+      id: number;
       name: string;
       snippetcount: number;
     }[]
@@ -65,14 +66,10 @@ export default function Dashboard() {
     {
       name: string;
       description: string;
-      snippetcount: number;
-      tags: string[];
     }
   >({
     name: groupName || "",
-    description: "",
-    snippetcount: 0,
-    tags: [],
+    description: ""
   });
 
   // Snippet list of current group
@@ -82,6 +79,7 @@ export default function Dashboard() {
       name: string;
       description: string;
       tags: string[];
+      favourite: boolean;
     }[]
   >([]);
 
@@ -92,7 +90,7 @@ export default function Dashboard() {
       setGroups(response.status ? response.groups : []);
 
       response = await get_group(groupName || "default");
-      setGroup(response.status ? response.group : { name: groupName || "default", description: "", snippetcount: 0, tags: [] });
+      setGroup(response.status ? response.group : { name: groupName || "default", description: "" });
 
       response = await get_snippets(groupName || "default");
       setSnippets(response.status ? response.snippets : []);
@@ -121,6 +119,14 @@ export default function Dashboard() {
               <span className="text-white">$</span>
             </span>
 
+            {/* Edit info */}
+            <button
+              className="px-1 py-1 rounded text-sm transition ml-auto mr-4"
+              onClick={() => console.log("Edit info clicked")}
+            >
+              <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
+            </button>
+
             {/* Add Snippet */}
             <button
               className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2 px-3 py-1
@@ -132,50 +138,18 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Group Info */}
-          <div className="mb-4 p-3 bg-[#2c2e3a] rounded text-[#f8f8f2] opacity-80">
-            {/* Tags Row */}
-            <div className="flex justify-between items-center mb-2">
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {group.tags.length > 0 ? (
-                  group.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-[#6272a4] text-[#f8f8f2] px-2 py-0.5 rounded text-xs"
-                    >
-                      {tag}
-                    </span>
-                  ))
-                ) : (
-                  <span className="bg-[#6272a4] text-[#f8f8f2] text-xs px-2 py-0.5 rounded">
-                    <i>No tags</i>
-                  </span>
-                )}
-              </div>
-
-              {/* Edit info */}
-              <button
-                className="px-1 py-1 rounded text-sm transition"
-                onClick={() => console.log("Add Description clicked")}
-              >
-                <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
-              </button>
-            </div>
-
-            {/* Description */}
-            <div className="flex justify-between items-start mt-4 mr-2">
-              <p className="text-[#6272a4]">
-                {group.description || "No description available."}
-              </p>
-            </div>
+          {/* Description */}
+          <div className="mb-4 p-3 bg-[#2c2e3a] rounded text-[#f8f8f2] opacity-80 px-4">
+            <p className="text-[#6272a4]">
+              {group.description || "No description available."}
+            </p>
           </div>
 
           {/* Content box */}
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets.map((item) => (
-                <ItemCard key={item.name} item={item} groupName={groupName || "default"} />
+                <ItemCard key={item.id} item={item} groupName={groupName || "default"} />
               ))}
             </div>
           </div>

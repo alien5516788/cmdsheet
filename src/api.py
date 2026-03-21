@@ -88,7 +88,9 @@ class Api:
     def create_snippet(self, groupName: str, name: str, description: str = ""):
         session = self._init_db.get_session()
         try:
-            SnippetOps(session).create_snippet(groupName.strip(), name.strip(), description.strip())
+            SnippetOps(session).create_snippet(
+                groupName.strip(), name.strip(), description.strip()
+            )
             return {"status": True}
         except Exception as e:
             session.rollback()

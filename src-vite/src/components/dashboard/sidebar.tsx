@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaBars, FaCode, FaHistory, FaPlus, FaStar } from "react-icons/fa";
+import { FaBars, FaHistory, FaPlus, FaStar } from "react-icons/fa";
 import GroupCard, { DefaultGroupCard } from "./groupcard";
 
 interface SidebarProps {
@@ -30,22 +30,16 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* Links */}
       <nav className="flex flex-col gap-2 px-2 flex-1 min-h-0 p-3">
-        {/* default, recent, favourites are permanent groups */}
-        <DefaultGroupCard
-          name="default"
-          snippetCount={groups.find((g) => g.name === "default")?.snippetcount || 0}
-          icon={<FaCode />}
-          collapsed={collapsed}
-        />
+        {/* recent, favourites are permanent groups */}
         <DefaultGroupCard
           name="recent"
-          snippetCount={groups.find((g) => g.name === "recent")?.snippetcount || 0}
+          snippetCount={0}
           icon={<FaHistory />}
           collapsed={collapsed}
         />
         <DefaultGroupCard
           name="favourites"
-          snippetCount={groups.find((g) => g.name === "favourites")?.snippetcount || 0}
+          snippetCount={0}
           icon={<FaStar />}
           collapsed={collapsed}
         />
@@ -66,12 +60,7 @@ export default function Sidebar(props: SidebarProps) {
 
         {/* Custom groups */}
         <div className="mt-2 flex flex-col gap-1 flex-1 overflow-y-auto pr-1 min-h-0">
-          {groups
-            .filter(
-              (group) =>
-                !["default", "recent", "favourites"].includes(group.name),
-            )
-            .map((group) => (
+          {groups.map((group) => (
               <GroupCard
                 key={group.name}
                 name={group.name}
