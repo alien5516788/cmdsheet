@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import ItemCard from "../components/dashboard/snippetcard";
 import Navbar from "../components/dashboard/navbar";
 import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
 import { get_group, get_groups, get_snippets, create_item } from "../api";
+import SnippetCard from "../components/dashboard/snippetcard";
 
 export default function Dashboard() {
   // Extract groupName from url params
@@ -149,7 +149,7 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets.map((item) => (
-                <ItemCard key={item.id} item={item} groupName={groupName || "default"} />
+                <SnippetCard key={item.id} item={item} groupName={groupName || "default"} />
               ))}
             </div>
           </div>

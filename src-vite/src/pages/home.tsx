@@ -33,7 +33,7 @@ export default function Home() {
             Get Started
           </Link>
         </div>
-  
+
         {/* Overview */}
         <div className="m-20 grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Start */}
@@ -45,7 +45,7 @@ export default function Home() {
               <HomeAction icon={<FaKeyboard />} label="command-palette" />
             </div>
           </div>
-  
+
           {/* Recent */}
           <div>
             <h2 className="text-[#bd93f9] mb-4">Recent</h2>
@@ -57,7 +57,7 @@ export default function Home() {
               <li className="hover:underline cursor-pointer">nmap -sV target</li>
             </ul>
           </div>
-  
+
           {/* Tips */}
           <div>
             <h2 className="text-[#bd93f9] mb-4">Tips</h2>

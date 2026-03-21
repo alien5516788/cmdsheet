@@ -11,7 +11,7 @@ if DEV:
     url = "http://localhost:5173/"
 else:
     base_dir = os.path.dirname(__file__)
-    url = os.path.join(base_dir, "dist", "index.html")
+    url = f"file://{os.path.join(base_dir, 'dist', 'index.html')}"
 
 
 def main():

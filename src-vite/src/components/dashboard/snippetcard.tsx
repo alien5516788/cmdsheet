@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaCode, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-interface ItemCardProps {
+interface SnippetCardProps {
   item: {
     name: string;
     description: string;
@@ -11,7 +11,7 @@ interface ItemCardProps {
   groupName: string;
 }
 
-export default function SnippetCard(props: ItemCardProps) {
+export default function SnippetCard(props: SnippetCardProps) {
   const { item, groupName } = props;
 
   const navigate = useNavigate();

@@ -66,6 +66,8 @@ class GroupOps:
         if newName is not None and newName != name:
             if newName.strip() == "":
                 raise Exception("Group name cannot be empty")
+            if newName.strip() == "default":
+                raise Exception("Cannot use permanent group name 'default'")
             self._assert_no_group(newName)
             group.name = newName
         if description is not None and description != group.description:
