@@ -13,7 +13,7 @@ class Api:
     def get_groups(self):
         session = self._init_db.get_session()
         try:
-            groups = GroupOps(session).list_groups()
+            groups = GroupOps(session).get_groups()
             return {"status": True, "groups": groups}
         except Exception as e:
             return {"status": False, "message": str(e)}
@@ -68,7 +68,7 @@ class Api:
     def get_snippets(self, groupName: str):
         session = self._init_db.get_session()
         try:
-            snippets = SnippetOps(session).list_snippets(groupName)
+            snippets = SnippetOps(session).get_snippets(groupName)
             return {"status": True, "snippets": snippets}
         except Exception as e:
             return {"status": False, "message": str(e)}

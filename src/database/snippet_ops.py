@@ -1,19 +1,38 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .models import Group, Snippet
+from database.group_ops import GroupOps
+
+from .models import Snippet
 
 
 class SnippetOps:
     def __init__(self, session: Session):
         self.session = session
+        self.group_ops = GroupOps(session)
 
-    def list_snippets(self, groupName: str):
-        group = self.session.scalar(select(Group).where(Group.name == groupName))
-        if not group:
-            raise Exception(f"Group '{groupName}' does not exist")
+    def _assert_snippet(self, groupName: str, name: str) -> Snippet:
+        group = self.group_ops._assert_group(groupName)
+        snippet = self.session.scalar(
+            select(Snippet).where(Snippet.name == name, Snippet.group_id == group.id)
+        )
+        if not snippet:
+            raise Exception(f"Snippet '{name}' does not exist in group '{groupName}'")
+
+        return snippet
+
+    def _assert_no_snippet(self, groupName: str, name: str) -> None:
+        group = self.group_ops._assert_group(groupName)
+        snippet = self.session.scalar(
+            select(Snippet).where(Snippet.name == name, Snippet.group_id == group.id)
+        )
+        if snippet:
+            raise Exception(f"Snippet '{name}' already exists in group '{groupName}'")
+
+    def get_snippets(self, groupName: str):
+        group = self.group_ops._assert_group(groupName)
 
         return [
             {
@@ -25,17 +44,9 @@ class SnippetOps:
         ]
 
     def get_snippet(self, groupName: str, name: str):
-        group = self.session.scalar(select(Group).where(Group.name == groupName))
-        if not group:
-            raise Exception(f"Group '{groupName}' does not exist")
+        snippet = self._assert_snippet(groupName, name)
 
-        snippet = self.session.scalar(
-            select(Snippet).where(Snippet.name == name, Snippet.group == group)
-        )
-        if not snippet:
-            raise Exception(f"Snippet '{name}' does not exist")
-
-        snippet.last_accessed = datetime.now()
+        snippet.last_accessed = func.now()
         self.session.commit()
 
         return {
@@ -46,21 +57,14 @@ class SnippetOps:
         }
 
     def create_snippet(self, groupName: str, name: str, description: str = ""):
-        group = self.session.scalar(select(Group).where(Group.name == groupName))
-        if not group:
-            raise Exception(f"Group '{groupName}' does not exist")
+        group = self.group_ops._assert_group(groupName)
 
-        snippet = self.session.scalar(
-            select(Snippet).where(Snippet.name == name, Snippet.group == group)
-        )
-        if snippet:
-            raise Exception(f"Snippet '{name}' already exists")
+        self._assert_no_snippet(groupName, name)
 
         snippet = Snippet(
             group=group,
             name=name,
             description=description,
-            content={},
         )
         self.session.add(snippet)
         self.session.commit()
@@ -73,38 +77,19 @@ class SnippetOps:
         description: str = "",
         tags: list[str] = [],
     ):
-        group = self.session.scalar(select(Group).where(Group.name == groupName))
-        if not group:
-            raise Exception(f"Group '{groupName}' does not exist")
+        snippet = self._assert_snippet(groupName, name)
 
-        snippet = self.session.scalar(
-            select(Snippet).where(Snippet.name == name, Snippet.group == group)
-        )
-        if not snippet:
-            raise Exception(f"Snippet '{name}' does not exist")
+        if name != newName:
+            self._assert_no_snippet(groupName, newName)
+            snippet.name = newName
 
-        newSnippet = self.session.scalar(
-            select(Snippet).where(Snippet.name == newName, Snippet.group == group)
-        )
-        if newSnippet:
-            raise Exception(f"Snippet '{newName}' already exist")
-
-        snippet.name = newName
         snippet.description = description
         snippet.tags = ",".join(tags)
 
         self.session.commit()
 
     def delete_snippet(self, groupName: str, name: str):
-        group = self.session.scalar(select(Group).where(Group.name == groupName))
-        if not group:
-            raise Exception(f"Group '{groupName}' does not exist")
-
-        snippet = self.session.scalar(
-            select(Snippet).where(Snippet.name == name, Snippet.group == group)
-        )
-        if not snippet:
-            raise Exception(f"Snippet '{name}' does not exist")
+        snippet = self._assert_snippet(groupName, name)
 
         self.session.delete(snippet)
         self.session.commit()

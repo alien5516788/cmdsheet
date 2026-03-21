@@ -7,9 +7,9 @@ export async function get_groups() {
   }
 }
 
-export async function get_group(groupName: string) {
+export async function get_group(name: string) {
   try {
-    return await pywebview.api.get_group(groupName);
+    return await pywebview.api.get_group(name);
   } catch (err) {
     await pywebview.api.print_log("Log: Failed to fetch group\n" + err);
     return { status: false, message: "Failed to fetch group" };
