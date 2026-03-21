@@ -42,11 +42,11 @@ class Api:
             session.close()
 
     def update_group(
-        self, name: str, newName: str, description: str = "", tags: list[str] = []
+        self, name: str, newName: str | None = None, description: str | None = None
     ):
         session = self._init_db.get_session()
         try:
-            GroupOps(session).update_group(name, newName, description, tags)
+            GroupOps(session).update_group(name, newName, description)
             return {"status": True}
         except Exception as e:
             session.rollback()
@@ -100,14 +100,15 @@ class Api:
         self,
         groupName: str,
         name: str,
-        newName: str,
-        description: str = "",
-        tags: list[str] = [],
+        newName: str | None = None,
+        description: str | None = None,
+        favourite: bool | None = None,
+        tags: list[str] | None = None,
     ):
         session = self._init_db.get_session()
         try:
             SnippetOps(session).update_snippet(
-                groupName, name, newName, description, tags
+                groupName, name, newName, description, favourite, tags
             )
             return {"status": True}
         except Exception as e:
@@ -116,10 +117,10 @@ class Api:
         finally:
             session.close()
 
-    def delete_snippet(self, group_name: str, snippet_name: str):
+    def delete_snippet(self, groupName: str, name: str):
         session = self._init_db.get_session()
         try:
-            SnippetOps(session).delete_snippet(group_name, snippet_name)
+            SnippetOps(session).delete_snippet(groupName, name)
             return {"status": True}
         except Exception as e:
             session.rollback()
