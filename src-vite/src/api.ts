@@ -25,18 +25,22 @@ export async function get_snippets(groupName: string) {
   }
 }
 
-export async function get_snippet(groupName: string, snippetName: string) {
+export async function get_snippet(groupName: string, name: string) {
   try {
-    return await pywebview.api.get_snippet(groupName, snippetName);
+    return await pywebview.api.get_snippet(groupName, name);
   } catch (err) {
     await pywebview.api.print_log("Log: Failed to fetch snippet\n" + err);
     return { status: false, message: "Failed to fetch snippet" };
   }
 }
 
-export async function create_item(itemType: "snippet" | "group", name: string, groupName: string, description: string) {
+export async function create_item(itemType: "snippet" | "group", groupName: string, name: string, description: string) {
   try {
-    return await pywebview.api.create_item(itemType, name, groupName, description);
+    if (itemType === "snippet") {
+      return await pywebview.api.create_snippet(groupName, name, description);
+    } else {
+      return await pywebview.api.create_group(name, description);
+    }
   } catch (err) {
     await pywebview.api.print_log("Log: Failed to create item\n" + err);
     return { status: false, message: "Failed to create item" };

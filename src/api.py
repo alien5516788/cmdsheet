@@ -23,7 +23,7 @@ class Api:
     def get_group(self, name: str):
         session = self._init_db.get_session()
         try:
-            group = GroupOps(session).get_group(name)
+            group = GroupOps(session).get_group(name.strip())
             return {"status": True, "group": group}
         except Exception as e:
             return {"status": False, "message": str(e)}
@@ -33,7 +33,7 @@ class Api:
     def create_group(self, name: str, description: str = ""):
         session = self._init_db.get_session()
         try:
-            GroupOps(session).create_group(name, description)
+            GroupOps(session).create_group(name.strip(), description.strip())
             return {"status": True}
         except Exception as e:
             session.rollback()
@@ -46,7 +46,7 @@ class Api:
     ):
         session = self._init_db.get_session()
         try:
-            GroupOps(session).update_group(name, newName, description)
+            GroupOps(session).update_group(name.strip(), newName, description)
             return {"status": True}
         except Exception as e:
             session.rollback()
@@ -57,7 +57,7 @@ class Api:
     def delete_group(self, name: str):
         session = self._init_db.get_session()
         try:
-            GroupOps(session).delete_group(name)
+            GroupOps(session).delete_group(name.strip())
             return {"status": True}
         except Exception as e:
             session.rollback()
@@ -68,7 +68,7 @@ class Api:
     def get_snippets(self, groupName: str):
         session = self._init_db.get_session()
         try:
-            snippets = SnippetOps(session).get_snippets(groupName)
+            snippets = SnippetOps(session).get_snippets(groupName.strip())
             return {"status": True, "snippets": snippets}
         except Exception as e:
             return {"status": False, "message": str(e)}
@@ -78,7 +78,7 @@ class Api:
     def get_snippet(self, groupName: str, name: str):
         session = self._init_db.get_session()
         try:
-            snippet = SnippetOps(session).get_snippet(groupName, name)
+            snippet = SnippetOps(session).get_snippet(groupName.strip(), name.strip())
             return {"status": True, "snippet": snippet}
         except Exception as e:
             return {"status": False, "message": str(e)}
@@ -88,7 +88,7 @@ class Api:
     def create_snippet(self, groupName: str, name: str, description: str = ""):
         session = self._init_db.get_session()
         try:
-            SnippetOps(session).create_snippet(groupName, name, description)
+            SnippetOps(session).create_snippet(groupName.strip(), name.strip(), description.strip())
             return {"status": True}
         except Exception as e:
             session.rollback()
@@ -108,7 +108,7 @@ class Api:
         session = self._init_db.get_session()
         try:
             SnippetOps(session).update_snippet(
-                groupName, name, newName, description, favourite, tags
+                groupName.strip(), name.strip(), newName, description, favourite, tags
             )
             return {"status": True}
         except Exception as e:
@@ -120,7 +120,7 @@ class Api:
     def delete_snippet(self, groupName: str, name: str):
         session = self._init_db.get_session()
         try:
-            SnippetOps(session).delete_snippet(groupName, name)
+            SnippetOps(session).delete_snippet(groupName.strip(), name.strip())
             return {"status": True}
         except Exception as e:
             session.rollback()

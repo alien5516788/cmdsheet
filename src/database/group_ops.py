@@ -44,11 +44,13 @@ class GroupOps:
         }
 
     def create_group(self, name: str, description: str):
-        if name == "default":
+        if name.strip() == "":
+            raise Exception("Group name cannot be empty")
+
+        if name.strip() == "default":
             raise Exception("Cannot use permanent group name 'default'")
 
         self._assert_no_group(name)
-
         group = Group(
             name=name, description=(description if description is not None else "")
         )
@@ -61,6 +63,8 @@ class GroupOps:
         group = self._assert_group(name)
 
         if newName is not None and newName != name:
+            if newName.strip() == "":
+                raise Exception("Group name cannot be empty")
             self._assert_no_group(newName)
             group.name = newName
         if description is not None and description != group.description:

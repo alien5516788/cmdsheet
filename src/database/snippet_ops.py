@@ -57,6 +57,9 @@ class SnippetOps:
         }
 
     def create_snippet(self, groupName: str, name: str, description: str):
+        if name.strip() == "":
+            raise Exception("Snippet name cannot be empty")
+
         group = self.group_ops._assert_group(groupName)
         self._assert_no_snippet(groupName, name)
 
@@ -81,6 +84,8 @@ class SnippetOps:
         snippet = self._assert_snippet(groupName, name)
 
         if newName is not None and name != newName:
+            if newName.strip() == "":
+                raise Exception("Snippet name cannot be empty")
             self._assert_no_snippet(groupName, newName)
             snippet.name = newName
         if description is not None and description != snippet.description:
