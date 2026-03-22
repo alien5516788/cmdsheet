@@ -11,7 +11,7 @@ interface CreateItemProps {
   ) => void;
   onClose: () => void;
   status: {
-    status: "default" | "error" | "warning";
+    status: "default" | "error";
     message: string;
   };
 }
@@ -20,7 +20,7 @@ export default function CreateItem(props: CreateItemProps) {
   const { itemType, onClose, onConfirm, status } = props;
 
   // Extract groupName from url params
-  // Group name reuired to create snippets
+  // Group name is required to create snippets
   const params = useParams();
   const { groupName } = params;
 
@@ -35,11 +35,6 @@ export default function CreateItem(props: CreateItemProps) {
       border: "border-red-500",
       text: "text-red-400",
       button: "bg-red-500 text-black hover:bg-red-400",
-    },
-    warning: {
-      border: "border-yellow-500",
-      text: "text-yellow-300",
-      button: "bg-yellow-500 text-black hover:bg-yellow-400",
     },
   };
 

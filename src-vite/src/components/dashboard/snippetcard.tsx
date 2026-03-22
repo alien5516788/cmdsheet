@@ -23,7 +23,7 @@ export default function SnippetCard(props: SnippetCardProps) {
   // If hovered, show delete button
   const [hovered, setHovered] = useState(false);
 
-  // Track if item is favourite without having to refetch the snipept list
+  // Track favourite state without having to refetch the snippet list
   const [favourite, setFavourite] = useState(item.favourite);
 
   return (

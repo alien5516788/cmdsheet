@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
 import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
 import SnippetCard from "../components/dashboard/snippetcard";
+import EditItem from "../components/popups/edititem";
 
 export default function Dashboard() {
   // Extract groupName from url params
@@ -30,6 +31,9 @@ export default function Dashboard() {
   }
 
   async function confirm_create_item(itemType: "snippet" | "group", groupName: string, name: string, description: string) {
+    // Group don't need a 'groupName' parameter
+    // 'groupName' parameter is only there to be compatible with the edit item component
+
     const response = await create_item(itemType, groupName, name, description);
 
     if (!response.status) {
@@ -52,7 +56,7 @@ export default function Dashboard() {
     setCreateItemStatus({ status: "default", message: "" });
   }
 
-
+  // Toggle favourite for a snippet
   async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
     const response = await update_item("snippet", groupName, name, null, null, favourite, null);
 
@@ -62,12 +66,52 @@ export default function Dashboard() {
     }
   }
 
+  // Update group
+  // Only groups can be updated from the dashboard
+  const [editGroupOpen, setEditGroupOpen] = useState<boolean>(false);
+  const [editGroupStatus, setEditGroupStatus] = useState<{
+    status: "default" | "error";
+    message: string;
+  }>({ status: "default", message: "" });
+
+
+  function open_edit_group() {
+    setEditGroupOpen(true);
+    setEditGroupStatus({ status: "default", message: "" });
+  }
+
+  async function confirm_edit_group(name: string, newName: string, description: string, tags?: string[]) {
+    // Groups don't have tags
+    // 'tags' parameter is only there to be compatible with the edit item component
+
+    const response = await update_item("group", groupName || "default", name, newName, description, null, tags ? null : null);
+
+    if (!response.status) {
+      setEditGroupStatus({ status: "error", message: response.message });
+      return;
+    }
+
+    setEditGroupOpen(false);
+    setEditGroupStatus({ status: "default", message: "" })
+
+    const groups = await get_groups();
+    setGroups(groups.status ? groups.groups : []);
+
+    const snippets = await get_snippets(groupName || "default");
+    setSnippets(snippets.status ? snippets.snippets : []);
+  }
+
+  function cancel_edit_group() {
+    setEditGroupOpen(false);
+    setEditGroupStatus({ status: "default", message: "" });
+  }
+
   // Group list
   const [groups, setGroups] = useState<
     {
       id: number;
       name: string;
-      snippetcount: number;
+      snippetCount: number;
     }[]
   >([]);
 
@@ -111,7 +155,7 @@ export default function Dashboard() {
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
       {/* Navbar */}
-      <Navbar groupName={groupName || "default"} />
+      <Navbar />
 
       {/* Body */}
       <div className="flex flex-1 min-h-0">
@@ -132,7 +176,7 @@ export default function Dashboard() {
             {/* Edit info */}
             <button
               className="px-1 py-1 rounded text-sm transition ml-auto mr-4"
-              onClick={() => console.log("Edit info clicked")}
+              onClick={() => open_edit_group()}
             >
               <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
             </button>
@@ -159,7 +203,7 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets.map((item) => (
-                <SnippetCard key={item.id} item={item} groupName={groupName || "default"} toggle_favourite={toggle_favourite}/>
+                <SnippetCard key={item.id} item={item} groupName={groupName || "default"} toggle_favourite={toggle_favourite} />
               ))}
             </div>
           </div>
@@ -168,24 +212,24 @@ export default function Dashboard() {
 
       {/* Create Item Popup */}
       {
-        createItemOpen && (
-          <CreateItem
-            itemType={createItemType}
-            onConfirm={confirm_create_item}
-            onClose={cancel_create_item}
-            status={createItemStatus}
-          />
-        )
+        createItemOpen &&
+        <CreateItem
+          itemType={createItemType}
+          onConfirm={confirm_create_item}
+          onClose={cancel_create_item}
+          status={createItemStatus}
+        />
       }
-      {/*<EditItem
-        itemType={editItemType}
-        initialName={editItemName}
-        initialDescription={editItemDescription}
-        initialTags={editItemTags}
-        onConfirm={update_item}
-        onClose={cancel_edit_item}
-        status={editStatus}
-      />*/}
+      {
+        editGroupOpen &&
+        <EditItem
+          itemType="group"
+          item={group}
+          onConfirm={confirm_edit_group}
+          onClose={cancel_edit_group}
+          status={editGroupStatus}
+        />
+      }
 
     </div>
   );

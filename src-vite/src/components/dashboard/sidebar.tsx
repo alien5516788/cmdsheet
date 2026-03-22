@@ -3,7 +3,7 @@ import { FaBars, FaHistory, FaPlus, FaStar } from "react-icons/fa";
 import GroupCard, { DefaultGroupCard } from "./groupcard";
 
 interface SidebarProps {
-  groups: { name: string; snippetcount: number }[];
+  groups: { name: string; snippetCount: number }[];
   openCreateItem: (itemType: "snippet" | "group") => void;
 }
 
@@ -64,7 +64,7 @@ export default function Sidebar(props: SidebarProps) {
               <GroupCard
                 key={group.name}
                 name={group.name}
-                snippetCount={group.snippetcount}
+                snippetCount={group.snippetCount}
                 collapsed={collapsed}
               />
             ))}

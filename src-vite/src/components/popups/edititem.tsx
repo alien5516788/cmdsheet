@@ -1,35 +1,29 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 interface EditItemProps {
   itemType: "snippet" | "group";
-  initialName: string;
-  initialDescription: string;
-  initialTags: string[];
-
+  item: { name: string; description: string; tags?: string[] };
   onConfirm: (
     name: string,
+    newName: string,
     description: string,
-    tags: string[]
+    tags?: string[]
   ) => void;
-
   onClose: () => void;
-
   status: {
-    status: "default" | "error" | "warning";
+    status: "default" | "error";
     message: string;
   };
 }
 
 export default function EditItem(props: EditItemProps) {
-  const {
-    itemType,
-    initialName,
-    initialDescription,
-    initialTags,
-    onConfirm,
-    onClose,
-    status,
-  } = props;
+  const { itemType, item, onConfirm, onClose, status } = props;
+
+  // Extract groupName from url params
+  // Group name is required to edit snippets
+  const params = useParams();
+  const { groupName } = params;
 
   const themeConfig = {
     default: {
@@ -42,18 +36,13 @@ export default function EditItem(props: EditItemProps) {
       text: "text-red-400",
       button: "bg-red-500 text-black hover:bg-red-400",
     },
-    warning: {
-      border: "border-yellow-500",
-      text: "text-yellow-300",
-      button: "bg-yellow-500 text-black hover:bg-yellow-400",
-    },
   };
 
   const currentTheme = themeConfig[status.status];
 
-  const [name, setName] = useState(initialName);
-  const [description, setDescription] = useState(initialDescription);
-  const [tags, setTags] = useState<string[]>(initialTags);
+  const [name, setName] = useState(item.name);
+  const [description, setDescription] = useState(item.description);
+  const [tags, setTags] = useState<string[]>(item.tags ?? []);
   const [tagInput, setTagInput] = useState("");
 
   function addTag() {

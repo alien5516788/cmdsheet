@@ -35,6 +35,7 @@ export async function get_snippet(groupName: string, name: string) {
 }
 
 export async function create_item(itemType: "snippet" | "group", groupName: string, name: string, description: string) {
+  // 'groupName' parameter is only used for snippets
   try {
     if (itemType === "snippet") {
       return await pywebview.api.create_snippet(groupName, name, description);
@@ -56,6 +57,8 @@ export async function update_item(
   favourite: boolean | null,
   tags: string[] | null
 ) {
+  // 'groupName' parameter is only used for snippets
+  // 'tags' and 'favourite' parameters are only used for snippets
   try {
     if (itemType === "snippet") {
       return await pywebview.api.update_snippet(groupName, name, newName, description, favourite, tags);
