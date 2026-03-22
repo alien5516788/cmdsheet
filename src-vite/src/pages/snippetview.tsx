@@ -29,6 +29,7 @@ export default function SnippetView() {
   });
 
   // Track changes to current snippet content
+  // Snippet editor works with this state to track changes before saving
   const [updatedContent, setUpdatedContent] = useState<SnippetBlock[]>([]);
 
   // Favourite state
@@ -89,6 +90,9 @@ export default function SnippetView() {
     get_snippetview_info();
   }, [snippetName, groupName]);
 
+  // Prevent render on initial load
+  // Becuase updatedContent is initialized after the first render
+  // so the first save is skipped
   const firstRender = useRef(true);
 
   useEffect(() => {
@@ -112,8 +116,8 @@ export default function SnippetView() {
 
 
   return (
-    <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
-      <div className="h-full w-[70vw] mx-auto border border-[#44475a]">
+    <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col">
+      <div className="h-full w-[70vw] mx-auto border border-[#44475a] flex flex-col">
         {/* Navbar with Back */}
         <div className="flex items-center bg-[#44475a] p-3 text-[#50fa7b]">
           <button
@@ -182,7 +186,7 @@ export default function SnippetView() {
           </div>
 
           {/* Snippet Content */}
-          <div className="flex-1 bg-[#2c2e3a] rounded p-4 overflow-auto text-sm font-mono whitespace-pre-wrap max-h-[70vh]">
+          <div className="bg-[#2c2e3a] rounded p-4 text-sm font-mono whitespace-pre-wrap">
             <SnippetEditor content={updatedContent} updateContent={setUpdatedContent} />
           </div>
         </main>
