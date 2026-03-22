@@ -73,11 +73,11 @@ class Snippet(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    content: Mapped[dict] = mapped_column(
+    content: Mapped[list] = mapped_column(
         JSON,
         nullable=False,
-        default=dict,
-        server_default=text("'{}'"),
+        default=list,
+        server_default=text("'[]'"),
     )
     favourite: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(

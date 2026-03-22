@@ -3,12 +3,15 @@ import { FaArrowLeft, FaPen, FaStar } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { get_snippet, update_item } from "../api";
 import EditItem from "../components/popups/edititem";
+import type { SnippetBlock } from "../components/snippetview/snippeteditor";
+import SnippetEditor from "../components/snippetview/snippeteditor";
+
 
 interface Snippet {
   name: string;
   description: string;
   tags: string[];
-  content: object; // the actual snippet content
+  content: SnippetBlock[];
   favourite: boolean;
 }
 
@@ -20,10 +23,11 @@ export default function SnippetView() {
     name: "",
     description: "",
     tags: [],
-    content: {},
+    content: [],
     favourite: false,
   });
 
+  // Favourite state
   const [favourite, setFavourite] = useState(false);
 
   async function toggle_favourite(name: string, favourite: boolean) {
@@ -68,6 +72,15 @@ export default function SnippetView() {
     setEditSnippetStatus({ status: "default", message: "" });
   }
 
+  // Edit snippet content
+  const [updatedContent, setUpdatedContent] = useState<SnippetBlock[]>([]);
+
+  function update_content(newContent: SnippetBlock[]) {
+    // TODO: make api call
+    setUpdatedContent(newContent);
+  }
+
+
   useEffect(() => {
     async function get_snippetview_info() {
       const response = await get_snippet(groupName || "default", snippetName || "");
@@ -75,7 +88,7 @@ export default function SnippetView() {
       setFavourite(response.status ? response.snippet.favourite : false);
     }
     get_snippetview_info();
-  }, [snippetName, groupName]);
+  }, [snippetName, groupName, updatedContent]);
 
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
@@ -143,13 +156,13 @@ export default function SnippetView() {
 
             {/* Description */}
             <div className="flex justify-between items-start mt-3 mb-4 mr-6">
-              <p className="text-[#6272a4]">{snippet.description || "No description available."}</p>
+              <SnippetEditor content={snippet.content} update_content={update_content} />
             </div>
           </div>
 
           {/* Snippet Content */}
           <div className="flex-1 bg-[#2c2e3a] rounded p-4 overflow-auto text-sm font-mono whitespace-pre-wrap">
-            {snippet.content.toString() || "// No content yet"}
+            {snippet.toString() || "// No content yet"}
           </div>
         </main>
       </div>
