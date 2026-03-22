@@ -32,7 +32,7 @@ export default function CodeV1(props: CodeV1Props) {
   }
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden border border-[#44475a]">
       <Editor
         value={block.content}
         onValueChange={(value: string) => update_block(value)}

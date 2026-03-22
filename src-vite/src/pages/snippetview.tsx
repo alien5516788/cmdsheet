@@ -117,24 +117,23 @@ export default function SnippetView() {
 
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col">
-      <div className="h-full w-[70vw] mx-auto border border-[#44475a] flex flex-col">
-        {/* Navbar with Back */}
-        <div className="flex items-center bg-[#44475a] p-3 text-[#50fa7b]">
-          <button
-            className="flex items-center gap-2 text-[#50fa7b] hover:text-[#8be9fd]"
-            onClick={() => navigate(`/group/${groupName}`)}
-          >
-            <FaArrowLeft />
-            <span>Back</span>
-          </button>
-        </div>
+      <div className="h-full w-[70vw] mx-auto flex">
+        {/* Side back button */}
+        <button
+          className="flex h-full w-20 items-center gap-2 text-[#8be9fd]
+          bg-[#44475a] opacity-10 hover:opacity-50 p-3"
+          onClick={() => navigate(`/group/${groupName}`)}
+        >
+          <FaArrowLeft />
+          <span>Back</span>
+        </button>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col overflow-y-auto p-4">
+        <main className="flex-1 flex flex-col border border-[#44475a] overflow-y-auto px-4 pb-4">
           {/* Header */}
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex justify-between items-start mb-4  pt-6 px-4 sticky top-0 z-50 bg-[#282a36]">
             {/* Title */}
-            <h2 className="text-[#8be9fd] text-xl font-medium mb-3">{snippet.name}</h2>
+            <h2 className="text-[#8be9fd] text-xl font-medium mb-3">/{snippet.name}</h2>
 
             {/* Edit info */}
             <div className="flex gap-2">
@@ -186,7 +185,7 @@ export default function SnippetView() {
           </div>
 
           {/* Snippet Content */}
-          <div className="bg-[#2c2e3a] rounded p-4 text-sm font-mono whitespace-pre-wrap">
+          <div className="rounded p-4 text-sm font-mono whitespace-pre-wrap">
             <SnippetEditor content={updatedContent} updateContent={setUpdatedContent} />
           </div>
         </main>
