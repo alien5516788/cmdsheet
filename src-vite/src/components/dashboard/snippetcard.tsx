@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { FaCode, FaTrash } from "react-icons/fa";
+import { FaCode, FaStar, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 interface SnippetCardProps {
   item: {
+    id: string;
     name: string;
     description: string;
     tags: string[];
+    favourite: boolean;
   };
   groupName: string;
+  toggle_favourite: (groupName: string, name: string, favourite: boolean) => Promise<void>;
 }
 
 export default function SnippetCard(props: SnippetCardProps) {
-  const { item, groupName } = props;
+  const { item, groupName, toggle_favourite } = props;
 
   const navigate = useNavigate();
 
   // Track if item count is hovered
   // If hovered, show delete button
   const [hovered, setHovered] = useState(false);
+
+  // Track if item is favourite without having to refetch the snipept list
+  const [favourite, setFavourite] = useState(item.favourite);
 
   return (
     <div className="border border-[#44475a] p-4 hover:border-[#bd93f9] transition cursor-pointer"
@@ -29,20 +35,31 @@ export default function SnippetCard(props: SnippetCardProps) {
       }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center justify-end gap-2 mb-2">
         <span className="text-[#8be9fd]">
           <FaCode size={14} />
         </span>
 
-        <h3 className="text-[#f8f8f2] font-medium truncate">{item.name}</h3>
+        <h3 className="text-[#f8f8f2] font-medium truncate mr-auto">{item.name}</h3>
 
         {hovered &&
-          <button className="text-[#ff5555] hover:text-[#ff79c6] ml-auto" onClick={(e) => {
+          <button className="text-[#ff5555] hover:text-[#ff79c6] mr-3" onClick={(e) => {
             e.stopPropagation();
             console.log("delete snippet");
           }}>
             <FaTrash size={14} />
           </button>
+        }
+
+        {
+          (hovered || favourite) &&
+          <span className={`${favourite ? " text-[#f1fa8c]" : ""} hover:text-[#f8f8f2]`} onClick={(e) => {
+            e.stopPropagation();
+            toggle_favourite(groupName, item.name, !item.favourite)
+            setFavourite(!favourite);
+          }}>
+            <FaStar size={14} />
+          </span>
         }
       </div>
 

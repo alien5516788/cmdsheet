@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaPen } from "react-icons/fa";
+import { FaArrowLeft, FaPen, FaStar } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import { get_snippet } from "../api";
+import { get_snippet, update_item } from "../api";
 
 interface Snippet {
   name: string;
@@ -23,10 +23,23 @@ export default function SnippetView() {
     favourite: false,
   });
 
+  // Track if item is favourite without having to refetch the snipept list
+  const [favourite, setFavourite] = useState(false);
+
+  async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
+    const response = await update_item("snippet", groupName, name, null, null, favourite, null);
+
+    if (!response.status) {
+      await pywebview.api.print_log("Log: Failed to toggle favourite\n" + response.message);
+      return;
+    }
+  }
+
   useEffect(() => {
     async function get_snippetview_info() {
       const response = await get_snippet(groupName || "default", snippetName || "");
       setSnippet(response.status ? response.snippet : {});
+      setFavourite(response.status ? response.snippet.favourite : false);
     }
     get_snippetview_info();
   }, [snippetName, groupName]);
@@ -69,9 +82,21 @@ export default function SnippetView() {
                   <i>No tags</i>
                 </span>
               )}
+
               {/* Edit info */}
               <button
                 className="px-1 py-1 rounded text-sm transition ml-auto"
+                onClick={() => {
+                  toggle_favourite(groupName || "default", snippetName || "", !favourite);
+                  setFavourite(!favourite);
+                }}
+              >
+                <FaStar className={`${favourite ? " text-[#f1fa8c]" : "text-[#6272a4]"} hover:text-[#f8f8f2]`} />
+              </button>
+
+              {/* Edit info */}
+              <button
+                className="px-1 py-1 rounded text-sm transition"
                 onClick={() => console.log("Edit description clicked")}
               >
                 <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />

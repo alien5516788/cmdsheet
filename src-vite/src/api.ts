@@ -46,3 +46,24 @@ export async function create_item(itemType: "snippet" | "group", groupName: stri
     return { status: false, message: "Failed to create item" };
   }
 }
+
+export async function update_item(
+  itemType: "snippet" | "group",
+  groupName: string,
+  name: string,
+  newName: string | null,
+  description: string | null,
+  favourite: boolean | null,
+  tags: string[] | null
+) {
+  try {
+    if (itemType === "snippet") {
+      return await pywebview.api.update_snippet(groupName, name, newName, description, favourite, tags);
+    } else {
+      return await pywebview.api.update_group(name, newName, description);
+    }
+  } catch (err) {
+    await pywebview.api.print_log("Log: Failed to update item\n" + err);
+    return { status: false, message: "Failed to update item" };
+  }
+}

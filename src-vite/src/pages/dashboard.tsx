@@ -4,7 +4,7 @@ import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
-import { get_group, get_groups, get_snippets, create_item } from "../api";
+import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
 import SnippetCard from "../components/dashboard/snippetcard";
 
 export default function Dashboard() {
@@ -52,6 +52,16 @@ export default function Dashboard() {
     setCreateItemStatus({ status: "default", message: "" });
   }
 
+
+  async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
+    const response = await update_item("snippet", groupName, name, null, null, favourite, null);
+
+    if (!response.status) {
+      await pywebview.api.print_log("Log: Failed to toggle favourite\n" + response.message);
+      return;
+    }
+  }
+
   // Group list
   const [groups, setGroups] = useState<
     {
@@ -68,7 +78,7 @@ export default function Dashboard() {
       description: string;
     }
   >({
-    name: groupName || "",
+    name: groupName || "default",
     description: ""
   });
 
@@ -149,7 +159,7 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets.map((item) => (
-                <SnippetCard key={item.id} item={item} groupName={groupName || "default"} />
+                <SnippetCard key={item.id} item={item} groupName={groupName || "default"} toggle_favourite={toggle_favourite}/>
               ))}
             </div>
           </div>
