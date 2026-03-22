@@ -51,6 +51,15 @@ class GroupOps:
         if name == "default":
             raise Exception("Cannot use permanent group name 'default'")
 
+        if name in ["favourites", "recent"]:
+            raise Exception(f"Cannot use reserved name '{name}'")
+
+        if len(name) > 50:
+            raise Exception("Group name cannot exceed 50 characters")
+
+        if len(description) > 400:
+            raise Exception("Group description cannot exceed 400 characters")
+
         self._assert_no_group(name)
         group = Group(
             name=name, description=(description if description is not None else "")
@@ -64,6 +73,8 @@ class GroupOps:
         group = self._assert_group(name)
 
         if description is not None and description.strip() != group.description:
+            if len(description.strip()) > 400:
+                raise Exception("Group description cannot exceed 400 characters")
             group.description = description.strip()
         if newName is not None and newName.strip() != name:
             # Name should be updated last, becuase it affects other field changes
@@ -71,8 +82,13 @@ class GroupOps:
                 raise Exception("Cannot rename permanent group 'default'")
             if newName.strip() == "default":
                 raise Exception("Cannot use permanent group name 'default'")
+            if newName.strip() in ["favourites", "recent"]:
+                raise Exception(f"Cannot use reserved name '{newName.strip()}'")
             if newName.strip() == "":
                 raise Exception("Group name cannot be empty")
+            if len(newName.strip()) > 50:
+                raise Exception("Group name cannot exceed 50 characters")
+
             self._assert_no_group(newName.strip())
             group.name = newName.strip()
 

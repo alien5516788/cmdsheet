@@ -61,6 +61,12 @@ class SnippetOps:
         if name == "":
             raise Exception("Snippet name cannot be empty")
 
+        if len(name) > 50:
+            raise Exception("Snippet name cannot exceed 50 characters")
+
+        if len(description) > 400:
+            raise Exception("Snippet description cannot exceed 400 characters")
+
         group = self.group_ops._assert_group(groupName)
         self._assert_no_snippet(groupName, name)
 
@@ -85,6 +91,8 @@ class SnippetOps:
         snippet = self._assert_snippet(groupName, name)
 
         if description is not None and description.strip() != snippet.description:
+            if len(description.strip()) > 400:
+                raise Exception("Snippet description cannot exceed 400 characters")
             snippet.description = description.strip()
         if favourite is not None and favourite != snippet.favourite:
             snippet.favourite = favourite
@@ -136,6 +144,8 @@ class SnippetOps:
             # Name should be updated last, becuase it affects other field changes
             if newName.strip() == "":
                 raise Exception("Snippet name cannot be empty")
+            if len(newName.strip()) > 50:
+                raise Exception("Snippet name cannot exceed 50 characters")
             self._assert_no_snippet(groupName, newName.strip())
             snippet.name = newName.strip()
         self.session.commit()

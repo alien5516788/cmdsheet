@@ -64,7 +64,7 @@ export default function SnippetEditor(props: SnippetEditorProps) {
 
 
   return (
-    <div className="flex-1 overflow-auto text-sm font-mono whitespace-pre-wrap">
+    <div className="flex-1 text-sm font-mono whitespace-pre-wrap">
       {/* Default block controller */}
       <BlockController
         index={-1}

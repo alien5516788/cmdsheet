@@ -7,6 +7,7 @@ import CreateItem from "../components/popups/createitem";
 import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
 import SnippetCard from "../components/dashboard/snippetcard";
 import EditItem from "../components/popups/edititem";
+import { StatusBar } from "../components/statusbar";
 
 export default function Dashboard() {
   // Extract groupName from url params
@@ -16,6 +17,12 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
+  // Status bar
+  const [statusBarStatus, setStatusBarStatus] = useState<{
+    status: "default" | "success" | "warning" | "error";
+    message: string;
+  }>({ status: "default", message: "No issue" });
+
   // Add a new snippet or a group
   const [createItemOpen, setCreateItemOpen] = useState<boolean>(false);
   const [createItemType, setCreateItemType] = useState<"snippet" | "group">(
@@ -24,7 +31,7 @@ export default function Dashboard() {
   const [createItemStatus, setCreateItemStatus] = useState<{
     status: "default" | "error";
     message: string;
-  }>({ status: "default", message: "" });
+  }>({ status: "default", message: "No issue" });
 
   function open_create_item(itemType: "snippet" | "group") {
     setCreateItemType(itemType);
@@ -60,7 +67,7 @@ export default function Dashboard() {
     const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
 
     if (!response.status) {
-      await pywebview.api.print_log("Log: Failed to toggle favourite\n" + response.message);
+      setStatusBarStatus({ status: "error", message: response.message });
       return;
     }
   }
@@ -136,13 +143,16 @@ export default function Dashboard() {
   useEffect(() => {
     async function get_dashboard_info() {
       let response = await get_groups();
-      setGroups(response.status ? response.groups : []);
+      if (response.status) setGroups(response.groups);
+      else setStatusBarStatus({ status: "error", message: response.message });
 
       response = await get_group(groupName || "");
-      setGroup(response.status ? response.group : { name: groupName || "", description: "" });
+      if (response.status) setGroup(response.group);
+      else setStatusBarStatus({ status: "error", message: response.message });
 
       response = await get_snippets(groupName || "");
-      setSnippets(response.status ? response.snippets : []);
+      if (response.status) setSnippets(response.snippets);
+      else setStatusBarStatus({ status: "error", message: response.message });
     }
     get_dashboard_info();
   }, [groupName]);
@@ -196,12 +206,15 @@ export default function Dashboard() {
 
           {/* Content box */}
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-2">
               {snippets.map((item) => (
                 <SnippetCard key={item.id} item={item} groupName={groupName || "default"} toggle_favourite={toggle_favourite} />
               ))}
             </div>
           </div>
+
+          {/* Status bar */}
+          <StatusBar status={statusBarStatus} setStatus={setStatusBarStatus} />
         </main>
       </div>
 

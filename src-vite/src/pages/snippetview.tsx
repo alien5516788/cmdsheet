@@ -5,6 +5,7 @@ import { get_snippet, update_item, update_snippet_content } from "../api";
 import EditItem from "../components/popups/edititem";
 import type { SnippetBlock } from "../components/snippetview/snippeteditor";
 import SnippetEditor from "../components/snippetview/snippeteditor";
+import { StatusBar } from "../components/statusbar";
 
 
 interface Snippet {
@@ -17,7 +18,14 @@ interface Snippet {
 
 export default function SnippetView() {
   const { groupName, snippetName } = useParams();
+
   const navigate = useNavigate();
+
+  // Status bar
+  const [statusBarStatus, setStatusBarStatus] = useState<{
+    status: "default" | "success" | "warning" | "error";
+    message: string;
+  }>({ status: "default", message: "No issue" });
 
   // Current snippet
   const [snippet, setSnippet] = useState<Snippet>({
@@ -39,7 +47,7 @@ export default function SnippetView() {
     const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
 
     if (!response.status) {
-      await pywebview.api.print_log("Log: Failed to toggle favourite" + response.message);
+      setStatusBarStatus({ status: "error", message: response.message });
       return;
     }
   }
@@ -84,6 +92,8 @@ export default function SnippetView() {
         setSnippet(response.snippet);
         setFavourite(response.snippet.favourite);
         setUpdatedContent(response.snippet.content || []); // important: initialize updatedContent
+      } else {
+        setStatusBarStatus({ status: "error", message: response.message });
       }
     }
 
@@ -108,7 +118,7 @@ export default function SnippetView() {
         snippetName || "",
         updatedContent
       );
-      if (response.status) console.log(response.message);
+      if (!response.status) setStatusBarStatus({ status: "error", message: response.message });
     }
 
     update_snippet_info();
@@ -185,9 +195,12 @@ export default function SnippetView() {
           </div>
 
           {/* Snippet Content */}
-          <div className="rounded p-4 text-sm font-mono whitespace-pre-wrap">
+          <div className="flex-1 rounded p-4 text-sm font-mono whitespace-pre-wrap">
             <SnippetEditor content={updatedContent} updateContent={setUpdatedContent} />
           </div>
+
+          {/* Status bar */}
+          <StatusBar status={statusBarStatus} setStatus={setStatusBarStatus} />
         </main>
       </div>
 
