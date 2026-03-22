@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 
 interface CreateItemProps {
   itemType: "snippet" | "group";
   onConfirm: (
     itemType: "snippet" | "group",
-    groupName: string,
     name: string,
     description: string,
-  ) => void;
+  ) => Promise<void>;
   onClose: () => void;
   status: {
     status: "default" | "error";
@@ -18,11 +16,6 @@ interface CreateItemProps {
 
 export default function CreateItem(props: CreateItemProps) {
   const { itemType, onClose, onConfirm, status } = props;
-
-  // Extract groupName from url params
-  // Group name is required to create snippets
-  const params = useParams();
-  const { groupName } = params;
 
   // Theme configuration for different statuses
   const themeConfig = {
@@ -92,7 +85,7 @@ export default function CreateItem(props: CreateItemProps) {
           </button>
           <button
             className={`px-4 py-2 rounded transition ${currentTheme.button}`}
-            onClick={() => onConfirm(itemType, groupName || "default", name, description)}
+            onClick={() => onConfirm(itemType, name, description)}
           >
             Confirm
           </button>

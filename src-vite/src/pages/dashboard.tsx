@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/dashboard/navbar";
 import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
 import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
 import SnippetCard from "../components/dashboard/snippetcard";
@@ -13,6 +13,8 @@ export default function Dashboard() {
   // Main content of the dashboard is displayed based on the groupName
   const params = useParams();
   const { groupName } = params;
+
+  const navigate = useNavigate();
 
   // Add a new snippet or a group
   const [createItemOpen, setCreateItemOpen] = useState<boolean>(false);
@@ -30,11 +32,8 @@ export default function Dashboard() {
     setCreateItemOpen(true);
   }
 
-  async function confirm_create_item(itemType: "snippet" | "group", groupName: string, name: string, description: string) {
-    // Group don't need a 'groupName' parameter
-    // 'groupName' parameter is only there to be compatible with the edit item component
-
-    const response = await create_item(itemType, groupName, name, description);
+  async function confirm_create_item(itemType: "snippet" | "group", name: string, description: string) {
+    const response = await create_item(itemType, groupName || "", name, description);
 
     if (!response.status) {
       setCreateItemStatus({ status: "error", message: response.message });
@@ -47,7 +46,7 @@ export default function Dashboard() {
     const groups = await get_groups();
     setGroups(groups.status ? groups.groups : []);
 
-    const snippets = await get_snippets(groupName || "default");
+    const snippets = await get_snippets(groupName || "");
     setSnippets(snippets.status ? snippets.snippets : []);
   }
 
@@ -57,8 +56,8 @@ export default function Dashboard() {
   }
 
   // Toggle favourite for a snippet
-  async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
-    const response = await update_item("snippet", groupName, name, null, null, favourite, null);
+  async function toggle_favourite(name: string, favourite: boolean) {
+    const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
 
     if (!response.status) {
       await pywebview.api.print_log("Log: Failed to toggle favourite\n" + response.message);
@@ -80,11 +79,10 @@ export default function Dashboard() {
     setEditGroupStatus({ status: "default", message: "" });
   }
 
-  async function confirm_edit_group(name: string, newName: string, description: string, tags?: string[]) {
+  async function confirm_edit_group(name: string, newName: string, description: string, tags?: string[] | null) {
     // Groups don't have tags
     // 'tags' parameter is only there to be compatible with the edit item component
-
-    const response = await update_item("group", groupName || "default", name, newName, description, null, tags ? null : null);
+    const response = await update_item("group", groupName || "", name, newName, description, null, tags ? null : null);
 
     if (!response.status) {
       setEditGroupStatus({ status: "error", message: response.message });
@@ -94,11 +92,8 @@ export default function Dashboard() {
     setEditGroupOpen(false);
     setEditGroupStatus({ status: "default", message: "" })
 
-    const groups = await get_groups();
-    setGroups(groups.status ? groups.groups : []);
-
-    const snippets = await get_snippets(groupName || "default");
-    setSnippets(snippets.status ? snippets.snippets : []);
+    // ISSUE: Doesn't reload if the group name is unchanged
+    navigate(`/group/${newName}`);
   }
 
   function cancel_edit_group() {
@@ -143,10 +138,10 @@ export default function Dashboard() {
       let response = await get_groups();
       setGroups(response.status ? response.groups : []);
 
-      response = await get_group(groupName || "default");
-      setGroup(response.status ? response.group : { name: groupName || "default", description: "" });
+      response = await get_group(groupName || "");
+      setGroup(response.status ? response.group : { name: groupName || "", description: "" });
 
-      response = await get_snippets(groupName || "default");
+      response = await get_snippets(groupName || "");
       setSnippets(response.status ? response.snippets : []);
     }
     get_dashboard_info();

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 
 interface EditItemProps {
   itemType: "snippet" | "group";
@@ -8,7 +7,7 @@ interface EditItemProps {
     name: string,
     newName: string,
     description: string,
-    tags?: string[]
+    tags?: string[] | null
   ) => void;
   onClose: () => void;
   status: {
@@ -19,12 +18,7 @@ interface EditItemProps {
 
 export default function EditItem(props: EditItemProps) {
   const { itemType, item, onConfirm, onClose, status } = props;
-
-  // Extract groupName from url params
-  // Group name is required to edit snippets
-  const params = useParams();
-  const { groupName } = params;
-
+  
   const themeConfig = {
     default: {
       border: "border-[#8be9fd]",
@@ -42,17 +36,21 @@ export default function EditItem(props: EditItemProps) {
 
   const [name, setName] = useState(item.name);
   const [description, setDescription] = useState(item.description);
-  const [tags, setTags] = useState<string[]>(item.tags ?? []);
+  // Tags only for snippets
+  const [tags, setTags] = useState<string[] | null>(
+    itemType === "snippet" ? item.tags ?? [] : null
+  );
   const [tagInput, setTagInput] = useState("");
 
   function addTag() {
-    if (!tagInput.trim()) return;
-    if (tags.includes(tagInput)) return;
+    if (!tagInput.trim() || !tags) return;
+    if (tags.includes(tagInput.trim())) return;
     setTags([...tags, tagInput.trim()]);
     setTagInput("");
   }
 
   function removeTag(tag: string) {
+    if (!tags) return;
     setTags(tags.filter((t) => t !== tag));
   }
 
@@ -89,49 +87,51 @@ export default function EditItem(props: EditItemProps) {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-          {/* Tags */}
-          <div>
-            <div className="flex gap-2 mb-2 flex-wrap">
-              {tags.length > 0 ? (
-                tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-[#6272a4] text-[#f8f8f2] px-2 py-0.5 rounded text-xs flex items-center gap-1"
-                  >
-                    {tag}
-                    <button
-                      className="text-[#ff5555] hover:text-[#ff79c6]"
-                      onClick={() => removeTag(tag)}
+          {/* Tags (only for snippets) */}
+          {itemType === "snippet" && tags && (
+            <div>
+              <div className="flex gap-2 mb-2 flex-wrap">
+                {tags.length > 0 ? (
+                  tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-[#6272a4] text-[#f8f8f2] px-2 py-0.5 rounded text-xs flex items-center gap-1"
                     >
-                      ×
-                    </button>
+                      {tag}
+                      <button
+                        className="text-[#ff5555] hover:text-[#ff79c6]"
+                        onClick={() => removeTag(tag)}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[#6272a4] text-xs">
+                    <i>No tags</i>
                   </span>
-                ))
-              ) : (
-                <span className="text-[#6272a4] text-xs">
-                  <i>No tags</i>
-                </span>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Add tag input */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={tagInput}
-                placeholder="Add tag"
-                className="flex-1 bg-[#1e1f29] border border-[#44475a] text-[#f8f8f2] rounded px-3 py-2 outline-none focus:border-[#bd93f9]"
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addTag()}
-              />
-              <button
-                className="px-3 py-2 bg-[#50fa7b] text-black rounded hover:bg-[#8be9fd]"
-                onClick={addTag}
-              >
-                Add
-              </button>
+              {/* Add tag input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  placeholder="Add tag"
+                  className="flex-1 bg-[#1e1f29] border border-[#44475a] text-[#f8f8f2] rounded px-3 py-2 outline-none focus:border-[#bd93f9]"
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addTag()}
+                />
+                <button
+                  className="px-3 py-2 bg-[#50fa7b] text-black rounded hover:bg-[#8be9fd]"
+                  onClick={addTag}
+                >
+                  Add
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Message */}
@@ -151,7 +151,7 @@ export default function EditItem(props: EditItemProps) {
           </button>
           <button
             className={`px-4 py-2 rounded transition ${currentTheme.button}`}
-            onClick={() => onConfirm(name, description, tags)}
+            onClick={() => onConfirm(item.name, name, description, tags)}
           >
             Save
           </button>

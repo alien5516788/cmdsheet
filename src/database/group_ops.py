@@ -63,15 +63,18 @@ class GroupOps:
     ):
         group = self._assert_group(name)
 
-        if newName is not None and newName != name:
-            if newName.strip() == "":
-                raise Exception("Group name cannot be empty")
+        if description is not None and description.strip() != group.description:
+            group.description = description.strip()
+        if newName is not None and newName.strip() != name:
+            # Name should be updated last, becuase it affects other field changes
+            if name == "default":
+                raise Exception("Cannot rename permanent group 'default'")
             if newName.strip() == "default":
                 raise Exception("Cannot use permanent group name 'default'")
-            self._assert_no_group(newName)
-            group.name = newName
-        if description is not None and description != group.description:
-            group.description = description
+            if newName.strip() == "":
+                raise Exception("Group name cannot be empty")
+            self._assert_no_group(newName.strip())
+            group.name = newName.strip()
 
         self.session.commit()
 

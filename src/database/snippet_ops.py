@@ -84,13 +84,8 @@ class SnippetOps:
     ):
         snippet = self._assert_snippet(groupName, name)
 
-        if newName is not None and name != newName:
-            if newName.strip() == "":
-                raise Exception("Snippet name cannot be empty")
-            self._assert_no_snippet(groupName, newName)
-            snippet.name = newName
-        if description is not None and description != snippet.description:
-            snippet.description = description
+        if description is not None and description.strip() != snippet.description:
+            snippet.description = description.strip()
         if favourite is not None and favourite != snippet.favourite:
             snippet.favourite = favourite
         if tags is not None:
@@ -109,14 +104,13 @@ class SnippetOps:
 
                 existing_map = {tag.name: tag for tag in existing_tags}
 
-                for name in to_add_names:
-                    if name in existing_map:
-                        snippet.tags.append(existing_map[name])
+                for t_name in to_add_names:
+                    if t_name in existing_map:
+                        snippet.tags.append(existing_map[t_name])
                     else:
-                        tag = Tag(name=name)
+                        tag = Tag(name=t_name)
                         self.session.add(tag)
                         snippet.tags.append(tag)
-
             # Remove tags
             removed_tags = []
             for name in to_remove_names:
@@ -138,6 +132,12 @@ class SnippetOps:
                 if count == 0:
                     self.session.delete(tag)
 
+        if newName is not None and newName.strip() != name:
+            # Name should be updated last, becuase it affects other field changes
+            if newName.strip() == "":
+                raise Exception("Snippet name cannot be empty")
+            self._assert_no_snippet(groupName, newName.strip())
+            snippet.name = newName.strip()
         self.session.commit()
 
     def delete_snippet(self, groupName: str, name: str):

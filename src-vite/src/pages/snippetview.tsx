@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft, FaPen, FaStar } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { get_snippet, update_item } from "../api";
+import EditItem from "../components/popups/edititem";
 
 interface Snippet {
   name: string;
@@ -23,16 +24,48 @@ export default function SnippetView() {
     favourite: false,
   });
 
-  // Track if item is favourite without having to refetch the snipept list
   const [favourite, setFavourite] = useState(false);
 
-  async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
-    const response = await update_item("snippet", groupName, name, null, null, favourite, null);
+  async function toggle_favourite(name: string, favourite: boolean) {
+    const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
 
     if (!response.status) {
       await pywebview.api.print_log("Log: Failed to toggle favourite\n" + response.message);
       return;
     }
+  }
+
+  // Update snippet
+  const [editSnippetOpen, setEditSnippetOpen] = useState<boolean>(false);
+  const [editSnippetStatus, setEditSnippetStatus] = useState<{
+    status: "default" | "error";
+    message: string;
+  }>({ status: "default", message: "" });
+
+
+  function open_edit_snippet() {
+    setEditSnippetOpen(true);
+    setEditSnippetStatus({ status: "default", message: "" });
+  }
+
+  async function confirm_edit_snippet(name: string, newName: string, description: string, tags?: string[] | null) {
+    const response = await update_item("snippet", groupName || "", name, newName, description, null, tags ? tags : null);
+
+    if (!response.status) {
+      setEditSnippetStatus({ status: "error", message: response.message });
+      return;
+    }
+
+    setEditSnippetOpen(false);
+    setEditSnippetStatus({ status: "default", message: "" });
+
+    // ISSUE: Doesn't reload if the snippet name is unchanged
+    navigate(`/group/${groupName}/${newName}`);
+  }
+
+  function cancel_edit_snippet() {
+    setEditSnippetOpen(false);
+    setEditSnippetStatus({ status: "default", message: "" });
   }
 
   useEffect(() => {
@@ -60,9 +93,33 @@ export default function SnippetView() {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col overflow-y-auto p-4">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-4">
+            {/* Title */}
+            <h2 className="text-[#8be9fd] text-xl font-medium mb-3">{snippet.name}</h2>
 
-          {/* Snippet Header */}
-          <h2 className="text-[#8be9fd] text-xl font-medium mb-3">{snippet.name}</h2>
+            {/* Edit info */}
+            <div className="flex gap-2">
+              {/* Details */}
+              <button
+                className="px-1 py-1 rounded text-sm transition"
+                onClick={() => open_edit_snippet()}
+              >
+                <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
+              </button>
+
+              {/* Favourite */}
+              <button
+                className="px-1 py-1 rounded text-sm transition ml-auto"
+                onClick={() => {
+                  toggle_favourite(snippetName || "", !favourite);
+                  setFavourite(!favourite);
+                }}
+              >
+                <FaStar className={`${favourite ? " text-[#f1fa8c]" : "text-[#6272a4]"} hover:text-[#f8f8f2]`} />
+              </button>
+            </div>
+          </div>
 
           {/* Snippet info */}
           <div className="mb-4 bg-[#2c2e3a] p-3">
@@ -82,25 +139,6 @@ export default function SnippetView() {
                   <i>No tags</i>
                 </span>
               )}
-
-              {/* Edit info */}
-              <button
-                className="px-1 py-1 rounded text-sm transition ml-auto"
-                onClick={() => {
-                  toggle_favourite(groupName || "default", snippetName || "", !favourite);
-                  setFavourite(!favourite);
-                }}
-              >
-                <FaStar className={`${favourite ? " text-[#f1fa8c]" : "text-[#6272a4]"} hover:text-[#f8f8f2]`} />
-              </button>
-
-              {/* Edit info */}
-              <button
-                className="px-1 py-1 rounded text-sm transition"
-                onClick={() => console.log("Edit description clicked")}
-              >
-                <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
-              </button>
             </div>
 
             {/* Description */}
@@ -115,6 +153,17 @@ export default function SnippetView() {
           </div>
         </main>
       </div>
+
+      {
+        editSnippetOpen &&
+        <EditItem
+          itemType="snippet"
+          item={snippet}
+          onConfirm={confirm_edit_snippet}
+          onClose={cancel_edit_snippet}
+          status={editSnippetStatus}
+        />
+      }
     </div>
   );
 }

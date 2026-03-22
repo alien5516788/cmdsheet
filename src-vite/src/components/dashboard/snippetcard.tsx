@@ -11,7 +11,7 @@ interface SnippetCardProps {
     favourite: boolean;
   };
   groupName: string;
-  toggle_favourite: (groupName: string, name: string, favourite: boolean) => Promise<void>;
+  toggle_favourite: (name: string, favourite: boolean) => Promise<void>;
 }
 
 export default function SnippetCard(props: SnippetCardProps) {
@@ -23,7 +23,6 @@ export default function SnippetCard(props: SnippetCardProps) {
   // If hovered, show delete button
   const [hovered, setHovered] = useState(false);
 
-  // Track favourite state without having to refetch the snippet list
   const [favourite, setFavourite] = useState(item.favourite);
 
   return (
@@ -55,7 +54,7 @@ export default function SnippetCard(props: SnippetCardProps) {
           (hovered || favourite) &&
           <span className={`${favourite ? " text-[#f1fa8c]" : ""} hover:text-[#f8f8f2]`} onClick={(e) => {
             e.stopPropagation();
-            toggle_favourite(groupName, item.name, !item.favourite)
+            toggle_favourite(item.name, !item.favourite)
             setFavourite(!favourite);
           }}>
             <FaStar size={14} />
