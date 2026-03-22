@@ -1,3 +1,5 @@
+import type { SnippetBlock } from "./components/snippetview/snippeteditor";
+
 export async function get_groups() {
   try {
     return await pywebview.api.get_groups();
@@ -68,5 +70,14 @@ export async function update_item(
   } catch (err) {
     await pywebview.api.print_log("Log: Failed to update item\n" + err);
     return { status: false, message: "Failed to update item" };
+  }
+}
+
+export async function update_snippet_content(groupName: string, name: string, content: SnippetBlock[]) {
+  try {
+    return await pywebview.api.update_snippet_content(groupName, name, content);
+  } catch (err) {
+    await pywebview.api.print_log("Log: Failed to update snippet content\n" + err);
+    return { status: false, message: "Failed to update snippet content" };
   }
 }

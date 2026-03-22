@@ -157,6 +157,11 @@ class SnippetOps:
 
         self.session.commit()
 
+    def update_snippet_content(self, groupName: str, name: str, content: list):
+        snippet = self._assert_snippet(groupName, name)
+        snippet.content = content
+        self.session.commit()
+
     # def move_snippet(self, src_group: str, snippet_name: str, dest_group: str):
     #     # TODO: Review and test this function
 

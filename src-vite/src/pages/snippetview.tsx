@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaArrowLeft, FaPen, FaStar } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import { get_snippet, update_item } from "../api";
+import { get_snippet, update_item, update_snippet_content } from "../api";
 import EditItem from "../components/popups/edititem";
 import type { SnippetBlock } from "../components/snippetview/snippeteditor";
 import SnippetEditor from "../components/snippetview/snippeteditor";
@@ -19,6 +19,7 @@ export default function SnippetView() {
   const { groupName, snippetName } = useParams();
   const navigate = useNavigate();
 
+  // Current snippet
   const [snippet, setSnippet] = useState<Snippet>({
     name: "",
     description: "",
@@ -27,6 +28,9 @@ export default function SnippetView() {
     favourite: false,
   });
 
+  // Track changes to current snippet content
+  const [updatedContent, setUpdatedContent] = useState<SnippetBlock[]>([]);
+
   // Favourite state
   const [favourite, setFavourite] = useState(false);
 
@@ -34,7 +38,7 @@ export default function SnippetView() {
     const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
 
     if (!response.status) {
-      await pywebview.api.print_log("Log: Failed to toggle favourite\n" + response.message);
+      await pywebview.api.print_log("Log: Failed to toggle favourite" + response.message);
       return;
     }
   }
@@ -72,23 +76,40 @@ export default function SnippetView() {
     setEditSnippetStatus({ status: "default", message: "" });
   }
 
-  // Edit snippet content
-  const [updatedContent, setUpdatedContent] = useState<SnippetBlock[]>([]);
-
-  function update_content(newContent: SnippetBlock[]) {
-    // TODO: make api call
-    setUpdatedContent(newContent);
-  }
-
-
   useEffect(() => {
     async function get_snippetview_info() {
       const response = await get_snippet(groupName || "default", snippetName || "");
-      setSnippet(response.status ? response.snippet : {});
-      setFavourite(response.status ? response.snippet.favourite : false);
+      if (response.status) {
+        setSnippet(response.snippet);
+        setFavourite(response.snippet.favourite);
+        setUpdatedContent(response.snippet.content || []); // important: initialize updatedContent
+      }
     }
+
     get_snippetview_info();
-  }, [snippetName, groupName, updatedContent]);
+  }, [snippetName, groupName]);
+
+  const firstRender = useRef(true);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    if (!updatedContent || updatedContent.length === 0) return;
+
+    async function update_snippet_info() {
+      const response = await update_snippet_content(
+        groupName || "",
+        snippetName || "",
+        updatedContent
+      );
+      if (response.status) console.log(response.message);
+    }
+
+    update_snippet_info();
+  }, [updatedContent, groupName, snippetName]);
+
 
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
@@ -155,14 +176,14 @@ export default function SnippetView() {
             </div>
 
             {/* Description */}
-            <div className="flex justify-between items-start mt-3 mb-4 mr-6">
-              <SnippetEditor content={snippet.content} update_content={update_content} />
+            <div className="flex justify-between items-start mt-2">
+              <p className="text-[#6272a4]">{snippet.description || "No description available"}</p>
             </div>
           </div>
 
           {/* Snippet Content */}
-          <div className="flex-1 bg-[#2c2e3a] rounded p-4 overflow-auto text-sm font-mono whitespace-pre-wrap">
-            {snippet.toString() || "// No content yet"}
+          <div className="flex-1 bg-[#2c2e3a] rounded p-4 overflow-auto text-sm font-mono whitespace-pre-wrap max-h-[70vh]">
+            <SnippetEditor content={updatedContent} updateContent={setUpdatedContent} />
           </div>
         </main>
       </div>

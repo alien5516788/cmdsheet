@@ -1,9 +1,14 @@
-import Editor from "@monaco-editor/react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
+import { html } from "@codemirror/lang-html";
+import { css } from "@codemirror/lang-css";
+import { json } from "@codemirror/lang-json";
 import type { SnippetBlock } from "./snippeteditor";
 
 interface CodeV1Props {
   block: SnippetBlock;
-  updateBlock: React.Dispatch<React.SetStateAction<SnippetBlock[]>>;
+  updateContent: React.Dispatch<React.SetStateAction<SnippetBlock[]>>;
 }
 
 const LANGUAGES = [
@@ -21,13 +26,26 @@ const LANGUAGES = [
   "css",
   "json",
   "markdown",
-  "shell"
+  "shell",
 ];
 
-export default function CodeV1(props: CodeV1Props) {
-  const { block, updateBlock } = props;
+function getExtensions(language: string) {
+  switch (language) {
+    case "python":
+      return [python()];
+    case "html":
+      return [html()];
+    case "css":
+      return [css()];
+    case "json":
+      return [json()];
+    default:
+      // For javascript/typescript, use js with JSX if desired
+      return [javascript({ jsx: true })];
+  }
+}
 
-  // Snippet content is stored as a JSON string and should be parsed
+export default function CodeV1({ block, updateContent }: CodeV1Props) {
   let language = "plaintext";
   let code = "";
 
@@ -36,12 +54,11 @@ export default function CodeV1(props: CodeV1Props) {
     language = parsed.language || "plaintext";
     code = parsed.code || "";
   } catch (err) {
-    pywebview.api.print_log("Failed to parse block content\n", err);
+    console.error(err);
   }
 
-  // Update the block with new data (language or code)
   function update_block(newData: { language?: string; code?: string }) {
-    updateBlock(prev =>
+    updateContent(prev =>
       prev.map(b => {
         if (b.id !== block.id) return b;
         let parsed;
@@ -52,12 +69,9 @@ export default function CodeV1(props: CodeV1Props) {
         }
         return {
           ...b,
-          content: JSON.stringify({
-            ...parsed,
-            ...newData
-          })
+          content: JSON.stringify({ ...parsed, ...newData }),
         };
-      })
+      }),
     );
   }
 
@@ -70,7 +84,7 @@ export default function CodeV1(props: CodeV1Props) {
           onChange={(e) => update_block({ language: e.target.value })}
           className="bg-[#44475a] text-[#f8f8f2] text-xs px-2 py-1 rounded outline-none"
         >
-          {LANGUAGES.map(lang => (
+          {LANGUAGES.map((lang) => (
             <option key={lang} value={lang}>
               {lang}
             </option>
@@ -78,14 +92,33 @@ export default function CodeV1(props: CodeV1Props) {
         </select>
       </div>
 
-      {/* Code editor */}
-      <Editor
-        height="200px"
-        language={language}
+      {/* CodeMirror editor */}
+      <CodeMirror
         value={code}
-        theme="vs-dark"
-        onChange={(value) => update_block({ code: value || "" })}
-        options={{ minimap: { enabled: false } }}
+        height="200px"
+        extensions={getExtensions(language)}
+        theme="dark"
+        onChange={(value) => update_block({ code: value })}
+        basicSetup={{
+          lineNumbers: false,
+          highlightActiveLineGutter: false,
+          foldGutter: false,
+          dropCursor: false,
+          indentOnInput: false,
+          bracketMatching: false,
+          closeBrackets: false,
+          autocompletion: false,
+          rectangularSelection: false,
+          highlightActiveLine: false,
+          highlightSelectionMatches: false,
+          searchKeymap: false,
+        }}
+        style={{
+          backgroundColor: "#21222c",
+          color: "#f8f8f2",
+          fontFamily: "monospace",
+          fontSize: "14px",
+        }}
       />
     </div>
   );
