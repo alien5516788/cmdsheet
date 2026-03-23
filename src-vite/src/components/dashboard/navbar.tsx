@@ -73,6 +73,12 @@ export default function Navbar(props: NavbarProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => searchQuery && setOpenSearchResultBox(true)}
+            onBlur={() => {
+              // If the click is inside the result box, give it time to register the click
+              setTimeout(() => {
+                setOpenSearchResultBox(false);
+              }, 500);
+            }}
             className="w-full bg-transparent text-[#f8f8f2] placeholder-[#6272a4] pl-10 pr-3 py-2 border border-[#44475a] focus:outline-none focus:border-[#bd93f9] focus:shadow-[0_0_6px_#bd93f9]"
             style={{ caretColor: "#50fa7b" }}
           />

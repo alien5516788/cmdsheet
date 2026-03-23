@@ -10,6 +10,7 @@ import EditItem from "../components/popups/edititem";
 import { StatusBar } from "../components/statusbar";
 import DeleteItem from "../components/popups/deleteitem";
 import useStatusBar from "../hooks/useStatusBar";
+import { truncateString } from "../utils/truncatestring";
 
 export default function Dashboard() {
   /*
@@ -24,10 +25,10 @@ export default function Dashboard() {
     The search results from navbar search can point to a snippet cards inside a group
   */
   const [searchResult, setSearchResult] = useState<SearchResult[]>([]);
-  
+
   // Tracks the snippet elements by their id for scroll restoration
   const snippetRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  
+
   function scroll_to_snippet(id: number) {
     const el = snippetRefs.current[id];
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -77,7 +78,7 @@ export default function Dashboard() {
     }
 
     setCreateItemOpen(false);
-    pushToStatusBar({ status: "success", message: `Created ${createItemType} "${name}"` });
+    pushToStatusBar({ status: "success", message: `Created ${createItemType} "${truncateString(name)}"` });
 
     // The popup doesn't know which item type was Created
     // To ensure the item info is updated, both groups and snippets are fetched again
@@ -134,7 +135,7 @@ export default function Dashboard() {
     }
 
     setEditGroupOpen(false);
-    pushToStatusBar({ status: "success", message: `Updated group "${name}"` });
+    pushToStatusBar({ status: "success", message: `Updated group "${truncateString(name)}"` });
 
     // Refresh the page to syn with changes
     if (name !== newName) {
@@ -181,7 +182,7 @@ export default function Dashboard() {
     }
 
     setDeleteItemOpen(false);
-    pushToStatusBar({ status: "success", message: `Deleted ${itemType} "${name}"` });
+    pushToStatusBar({ status: "success", message: `Deleted ${itemType} "${truncateString(name)}"` });
 
     // If the deleted item was the current group, navigate to the default group
     //   because the current group name is no longer valid

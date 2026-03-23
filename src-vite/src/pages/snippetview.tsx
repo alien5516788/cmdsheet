@@ -7,6 +7,7 @@ import type { SnippetBlock } from "../components/snippetview/snippeteditor";
 import SnippetEditor from "../components/snippetview/snippeteditor";
 import { StatusBar } from "../components/statusbar";
 import useStatusBar from "../hooks/useStatusBar";
+import { truncateString } from "../utils/truncatestring";
 
 
 interface Snippet {
@@ -86,6 +87,7 @@ export default function SnippetView() {
     }
 
     setEditSnippetOpen(false);
+    pushToStatusBar({ status: "success", message: `Updated snippet "${truncateString(name)}"` });
 
     // Refresh the snippet view to sync with changes
     // ISSUE: Doesn't reload if the snippet name is unchanged

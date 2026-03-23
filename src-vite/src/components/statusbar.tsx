@@ -50,7 +50,7 @@ export function StatusBar(props: StatusBarProps) {
             className={`text-sm ${themeConfig[item.status]} hover:scale-110 transition`}
             title={item.message}
           >
-            {`[${iconConfig[item.status]} ${item.status}]`}
+            {`[${iconConfig[item.status]}]`}
           </button>
         ))}
       </div>

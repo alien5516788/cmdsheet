@@ -37,6 +37,7 @@ export default function EditItem(props: EditItemProps) {
   const [name, setName] = useState(item.name);
   const [description, setDescription] = useState(item.description);
   // Tags only for snippets
+  // ISSUE: Weird issue though, when adding large number of tags, the input field gets cut off
   const [tags, setTags] = useState<string[] | null>(
     itemType === "snippet" ? item.tags ?? [] : null
   );
