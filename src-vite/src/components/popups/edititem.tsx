@@ -77,6 +77,7 @@ export default function EditItem(props: EditItemProps) {
             placeholder="Name"
             className="bg-[#1e1f29] border border-[#44475a] text-[#f8f8f2] rounded px-3 py-2 outline-none focus:border-[#bd93f9]"
             onChange={(e) => setName(e.target.value)}
+            disabled={itemType === "group" && item.name === "default"}
           />
 
           {/* Description */}

@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
 import Navbar from "../components/dashboard/navbar";
 import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import CreateItem from "../components/popups/createitem";
-import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
 import SnippetCard from "../components/dashboard/snippetcard";
 import EditItem from "../components/popups/edititem";
 import { StatusBar } from "../components/statusbar";
@@ -63,8 +63,9 @@ export default function Dashboard() {
   }
 
   // Toggle favourite for a snippet
-  async function toggle_favourite(name: string, favourite: boolean) {
-    const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
+  async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
+    // ISSUE: favourite count in side bar doesn't update unless reloaded
+    const response = await update_item("snippet", groupName, name, null, null, favourite, null);
 
     if (!response.status) {
       setStatusBarStatus({ status: "error", message: response.message });
@@ -132,6 +133,7 @@ export default function Dashboard() {
   const [snippets, setSnippets] = useState<
     {
       id: string;
+      groupName: string;
       name: string;
       description: string;
       tags: string[];
@@ -154,6 +156,7 @@ export default function Dashboard() {
       if (response.status) setSnippets(response.snippets);
       else setStatusBarStatus({ status: "error", message: response.message });
     }
+
     get_dashboard_info();
   }, [groupName]);
 
@@ -172,29 +175,33 @@ export default function Dashboard() {
           {/* Header */}
           <div className="text-[#50fa7b] mb-4 flex justify-between">
             {/* Terminal-style path */}
-            <span className="cursor-blink">
+            <span className="cursor-blink py-2">
               user@cmdsheet<span className="text-white">:</span>
               <span className="text-blue-500">~/{groupName}</span>
               <span className="text-white">$</span>
             </span>
 
-            {/* Edit info */}
-            <button
-              className="px-1 py-1 rounded text-sm transition ml-auto mr-4"
-              onClick={() => open_edit_group()}
-            >
-              <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
-            </button>
+            {/* Edit info and add snipepts */}
+            {
+              !["recent", "favourites"].includes(groupName || "") &&
+              <Fragment>
+                <button
+                  className="px-1 py-1 rounded text-sm transition ml-auto mr-4"
+                  onClick={() => open_edit_group()}
+                >
+                  <FaPen className="text-[#6272a4] hover:text-[#8be9fd]" />
+                </button>
 
-            {/* Add Snippet */}
-            <button
-              className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2 px-3 py-1
-              border border-[#50fa7b] hover:border-[#bd93f9] rounded"
-              onClick={() => open_create_item("snippet")}
-            >
-              <FaPlus />
-              <span>Add snippet</span>
-            </button>
+                <button
+                  className="text-[#50fa7b] hover:text-[#8be9fd] transition flex items-center gap-2 px-3 py-1
+                  border border-[#50fa7b] hover:border-[#bd93f9] rounded"
+                  onClick={() => open_create_item("snippet")}
+                >
+                  <FaPlus />
+                  <span>Add snippet</span>
+                </button>
+              </Fragment>
+            }
           </div>
 
           {/* Description */}
@@ -208,7 +215,7 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-2">
               {snippets.map((item) => (
-                <SnippetCard key={item.id} item={item} groupName={groupName || "default"} toggle_favourite={toggle_favourite} />
+                <SnippetCard key={item.id} item={item} toggleFavourite={toggle_favourite} />
               ))}
             </div>
           </div>
@@ -238,7 +245,6 @@ export default function Dashboard() {
           status={editGroupStatus}
         />
       }
-
     </div>
   );
 }

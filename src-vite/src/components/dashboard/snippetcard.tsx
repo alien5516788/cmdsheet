@@ -5,17 +5,17 @@ import { useNavigate } from "react-router-dom";
 interface SnippetCardProps {
   item: {
     id: string;
+    groupName: string;
     name: string;
     description: string;
     tags: string[];
     favourite: boolean;
   };
-  groupName: string;
-  toggle_favourite: (name: string, favourite: boolean) => Promise<void>;
+  toggleFavourite: (groupName: string, name: string, favourite: boolean) => Promise<void>;
 }
 
 export default function SnippetCard(props: SnippetCardProps) {
-  const { item, groupName, toggle_favourite } = props;
+  const { item, toggleFavourite } = props;
 
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ export default function SnippetCard(props: SnippetCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => {
-        navigate(`/group/${groupName}/${item.name}`);
+        navigate(`/group/${item.groupName}/${item.name}`);
       }}
     >
       {/* Header */}
@@ -54,7 +54,7 @@ export default function SnippetCard(props: SnippetCardProps) {
           (hovered || favourite) &&
           <span className={`${favourite ? " text-[#f1fa8c]" : ""} hover:text-[#f8f8f2]`} onClick={(e) => {
             e.stopPropagation();
-            toggle_favourite(item.name, !item.favourite)
+            toggleFavourite(item.groupName, item.name, !item.favourite)
             setFavourite(!favourite);
           }}>
             <FaStar size={14} />

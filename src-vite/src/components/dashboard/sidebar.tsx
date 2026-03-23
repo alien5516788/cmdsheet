@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { FaBars, FaHistory, FaPlus, FaStar } from "react-icons/fa";
-import GroupCard, { DefaultGroupCard } from "./groupcard";
+import { FaBars, FaPlus } from "react-icons/fa";
+import GroupCard from "./groupcard";
 
 interface SidebarProps {
   groups: { name: string; snippetCount: number }[];
@@ -29,21 +29,7 @@ export default function Sidebar(props: SidebarProps) {
       </div>
 
       {/* Links */}
-      <nav className="flex flex-col gap-2 px-2 flex-1 min-h-0 p-3">
-        {/* recent, favourites are permanent groups */}
-        <DefaultGroupCard
-          name="recent"
-          snippetCount={0}
-          icon={<FaHistory />}
-          collapsed={collapsed}
-        />
-        <DefaultGroupCard
-          name="favourites"
-          snippetCount={0}
-          icon={<FaStar />}
-          collapsed={collapsed}
-        />
-
+      <aside className="flex flex-col gap-2 px-2 flex-1 min-h-0 p-3">
         {/* Add group button */}
         <button
           className="text-[#50fa7b] hover:text-[#8be9fd] transition flex justify-center items-center gap-3 px-3 py-1
@@ -58,18 +44,31 @@ export default function Sidebar(props: SidebarProps) {
           )}
         </button>
 
-        {/* Custom groups */}
+        {/* Groups */}
         <div className="mt-2 flex flex-col gap-1 flex-1 overflow-y-auto pr-1 min-h-0">
           {groups.map((group) => (
+            /*
+              Recent, favourites are virtual groups
+              Rendering recent and favourite separately ensures they appear on top
+            */
+            ["recent", "favourites"].includes(group.name) ? (
               <GroupCard
                 key={group.name}
                 name={group.name}
                 snippetCount={group.snippetCount}
                 collapsed={collapsed}
               />
-            ))}
+            ) : (
+              <GroupCard
+                key={group.name}
+                name={group.name}
+                snippetCount={group.snippetCount}
+                collapsed={collapsed}
+              />
+            )
+          ))}
         </div>
-      </nav>
+      </aside>
     </aside>
   );
 }

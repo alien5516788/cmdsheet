@@ -27,7 +27,7 @@ class GroupOps:
             .group_by(Group.id, Group.name)
         ).all()
 
-        return [
+        custom_groups = [
             {
                 "id": id,
                 "name": name,
@@ -36,7 +36,48 @@ class GroupOps:
             for id, name, count in groups
         ]
 
+        # favourites count
+        favourites_count = self.session.execute(
+            select(func.count(Snippet.id)).where(Snippet.favourite)
+        ).scalar_one()
+
+        # recent count (limit 20)
+        recent_count = self.session.execute(
+            select(func.count()).select_from(
+                select(Snippet.id)
+                .order_by(Snippet.last_accessed.desc())
+                .limit(20)
+                .subquery()
+            )
+        ).scalar_one()
+
+        virtual_groups = [
+            {
+                "id": -1,
+                "name": "recent",
+                "snippetCount": recent_count,
+            },
+            {
+                "id": -2,
+                "name": "favourites",
+                "snippetCount": favourites_count,
+            },
+        ]
+
+        return virtual_groups + custom_groups
+
     def get_group(self, name: str):
+        if name == "recent":
+            return {
+                "name": "recent",
+                "description": "Echoes of your latest thoughts linger here — the commands you whispered to the machine, still warm, still within reach.",
+            }
+        if name == "favourites":
+            return {
+                "name": "favourites",
+                "description": "The ones you chose to keep close — fragments of code that earned your trust and found a home.",
+            }
+
         group = self._assert_group(name)
 
         return {

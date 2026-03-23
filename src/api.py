@@ -129,11 +129,13 @@ class Api:
             return {"status": False, "message": str(e)}
         finally:
             session.close()
-    
+
     def update_snippet_content(self, groupName: str, name: str, content: list):
         session = self._init_db.get_session()
         try:
-            SnippetOps(session).update_snippet_content(groupName.strip(), name.strip(), content)
+            SnippetOps(session).update_snippet_content(
+                groupName.strip(), name.strip(), content
+            )
             return {"status": True}
         except Exception as e:
             session.rollback()

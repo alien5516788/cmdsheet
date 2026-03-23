@@ -30,17 +30,36 @@ class SnippetOps:
             raise Exception(f"Snippet '{name}' already exists in group '{groupName}'")
 
     def get_snippets(self, groupName: str):
-        group = self.group_ops._assert_group(groupName)
+        if groupName == "recent":
+            snippets = (
+                self.session.execute(
+                    select(Snippet).order_by(Snippet.last_accessed.desc()).limit(20)
+                )
+                .scalars()
+                .all()
+            )
+
+        elif groupName == "favourites":
+            snippets = (
+                self.session.execute(select(Snippet).where(Snippet.favourite))
+                .scalars()
+                .all()
+            )
+
+        else:
+            group = self.group_ops._assert_group(groupName)
+            snippets = group.snippets
 
         return [
             {
                 "id": snippet.id,
+                "groupName": snippet.group.name,
                 "name": snippet.name,
                 "description": snippet.description,
                 "tags": [tag.name for tag in snippet.tags],
                 "favourite": snippet.favourite,
             }
-            for snippet in group.snippets
+            for snippet in snippets
         ]
 
     def get_snippet(self, groupName: str, name: str):

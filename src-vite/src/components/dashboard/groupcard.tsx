@@ -1,47 +1,8 @@
 import { useState } from "react";
-import { FaLayerGroup, FaTrash } from "react-icons/fa";
+import { FaHistory, FaLayerGroup, FaTrash } from "react-icons/fa";
+import { FaStar } from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
 
-// default, recent, favourites groups are permanent and cannot be deleted
-// This component is made specifically for the default, recent, and favourites groups
-interface DefaultGroupCardProps {
-  name: string;
-  snippetCount: number;
-  icon: React.ReactNode;
-  collapsed: boolean;
-}
-
-export function DefaultGroupCard(props: DefaultGroupCardProps) {
-  const { name, snippetCount, icon, collapsed } = props;
-
-  // Extract groupName from url params
-  // Sidebar link highlights the current group
-  const params = useParams();
-  const { groupName } = params;
-
-  // Navigate to the group page when clicked
-  const navigate = useNavigate();
-
-  return (
-    <button
-      className={`flex items-center gap-3 px-3 py-2 text-[#f8f8f2] hover:bg-[#44475a] transition
-      ${name === groupName ? "bg-[#44475a]" : ""}`}
-      onClick={() => {
-        navigate(`/group/${name}`);
-      }}
-    >
-      <span className="text-[#8be9fd] flex items-center w-5 h-7">{icon}</span>
-      {!collapsed && (
-        <>
-          <span className="flex items-center h-7">{name}</span>
-          <span className="text-xs text-[#6272a4] ml-auto">{snippetCount}</span>
-        </>
-      )}
-    </button>
-  );
-}
-
-// Apart from the default, recent, and favourites groups, custom groups are rendered with this component
 interface GroupCardProps {
   name: string;
   snippetCount: number;
@@ -64,10 +25,8 @@ export default function GroupCard(props: GroupCardProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div
-      className={`group flex items-center justify-between px-3 py-2 gap-4 cursor-pointer
-      text-[#f8f8f2] hover:bg-[#44475a] transition
-      ${groupName === name ? "bg-[#44475a]" : ""}`}
+    <div className={`group flex items-center justify-between px-3 py-2 gap-4 cursor-pointer text-[#f8f8f2]
+      hover:bg-[#44475a] transition ${groupName === name ? "bg-[#44475a]" : ""}`}
       onClick={() => {
         navigate(`/group/${name}`);
       }}
@@ -76,9 +35,21 @@ export default function GroupCard(props: GroupCardProps) {
     >
       {/* Icon */}
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-[#ffb86c] flex items-center w-5 h-7">
-          <FaLayerGroup />
-        </span>
+        {name === "recent" &&
+          <span className="text-[#8be9fd] flex items-center w-5 h-7">
+            <FaHistory />
+          </span>
+        }
+        {name === "favourites" &&
+          <span className="text-[#8be9fd] flex items-center w-5 h-7">
+            <FaStar />
+          </span>
+        }
+        {!["recent", "favourites"].includes(name || "") &&
+          <span className="text-[#ffb86c] flex items-center w-5 h-7">
+            <FaLayerGroup />
+          </span>
+        }
 
         {!collapsed && <span className="truncate">{name}</span>}
       </div>
@@ -86,8 +57,7 @@ export default function GroupCard(props: GroupCardProps) {
       {/* Delete and count */}
       {!collapsed && (
         <div className="flex items-center gap-2">
-          {hovered ? (
-            // Delete
+          {hovered && !["recent", "favourites", "default"].includes(name || "") ? (
             <button
               className="opacity-0 group-hover:opacity-100 text-[#ff5555] hover:text-[#ff79c6] transition"
               onClick={(e) => {
@@ -98,7 +68,6 @@ export default function GroupCard(props: GroupCardProps) {
               <FaTrash size={12} />
             </button>
           ) : (
-            // Count
             <span className="text-xs text-[#6272a4]">{snippetCount}</span>
           )}
         </div>
