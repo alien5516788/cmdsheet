@@ -81,3 +81,16 @@ export async function update_snippet_content(groupName: string, name: string, co
     return { status: false, message: "Failed to update snippet content" };
   }
 }
+
+export async function delete_item(itemType: "snippet" | "group", groupName: string, name: string) {
+  try {
+    if (itemType === "snippet") {
+      return await pywebview.api.delete_snippet(groupName, name);
+    } else {
+      return await pywebview.api.delete_group(name);
+    }
+  } catch (err) {
+    await pywebview.api.print_log("Log: Failed to delete item\n" + err);
+    return { status: false, message: "Failed to delete item" };
+  }
+}

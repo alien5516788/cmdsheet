@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FaArrowLeft, FaPen, FaStar } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { get_snippet, update_item, update_snippet_content } from "../api";
 import EditItem from "../components/popups/edititem";
 import type { SnippetBlock } from "../components/snippetview/snippeteditor";
@@ -18,6 +18,7 @@ interface Snippet {
 
 export default function SnippetView() {
   const { groupName, snippetName } = useParams();
+  const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
 
@@ -132,7 +133,7 @@ export default function SnippetView() {
         <button
           className="flex h-full w-20 items-center gap-2 text-[#8be9fd]
           bg-[#44475a] opacity-10 hover:opacity-50 p-3"
-          onClick={() => navigate(`/group/${groupName}`)}
+          onClick={() => navigate(`/group/${searchParams.get("prevGroup")}`)}
         >
           <FaArrowLeft />
           <span>Back</span>

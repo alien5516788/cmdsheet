@@ -5,6 +5,9 @@ from database.group_ops import GroupOps
 
 from .models import Snippet, Tag, snippet_tags
 
+# ISSUE: Allmost all functions uses groupName + name to identify a snippet instead of using id
+# Hard to fix becuase frontend also has to be refactored, but consider using id later on
+
 
 class SnippetOps:
     def __init__(self, session: Session):

@@ -7,10 +7,11 @@ interface GroupCardProps {
   name: string;
   snippetCount: number;
   collapsed: boolean;
+  openDeleteItem: (itemType: "snippet" | "group", name: string) => void;
 }
 
 export default function GroupCard(props: GroupCardProps) {
-  const { name, snippetCount, collapsed } = props;
+  const { name, snippetCount, collapsed, openDeleteItem } = props;
 
   // Extract groupName from url params
   // Sidebar link highlights the current group
@@ -62,7 +63,7 @@ export default function GroupCard(props: GroupCardProps) {
               className="opacity-0 group-hover:opacity-100 text-[#ff5555] hover:text-[#ff79c6] transition"
               onClick={(e) => {
                 e.stopPropagation();
-                console.log("delete group");
+                openDeleteItem("group", name)
               }}
             >
               <FaTrash size={12} />

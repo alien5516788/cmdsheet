@@ -5,10 +5,11 @@ import GroupCard from "./groupcard";
 interface SidebarProps {
   groups: { name: string; snippetCount: number }[];
   openCreateItem: (itemType: "snippet" | "group") => void;
+  openDeleteItem: (itemType: "snippet" | "group", name: string) => void;
 }
 
 export default function Sidebar(props: SidebarProps) {
-  const { groups, openCreateItem } = props;
+  const { groups, openCreateItem, openDeleteItem } = props;
 
   // Collapse sidebar
   const [collapsed, setCollapsed] = useState(false);
@@ -57,6 +58,7 @@ export default function Sidebar(props: SidebarProps) {
                 name={group.name}
                 snippetCount={group.snippetCount}
                 collapsed={collapsed}
+                openDeleteItem={openDeleteItem}
               />
             ) : (
               <GroupCard
@@ -64,6 +66,7 @@ export default function Sidebar(props: SidebarProps) {
                 name={group.name}
                 snippetCount={group.snippetCount}
                 collapsed={collapsed}
+                openDeleteItem={openDeleteItem}
               />
             )
           ))}

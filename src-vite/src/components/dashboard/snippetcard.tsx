@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaCode, FaStar, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface SnippetCardProps {
   item: {
@@ -12,10 +12,14 @@ interface SnippetCardProps {
     favourite: boolean;
   };
   toggleFavourite: (groupName: string, name: string, favourite: boolean) => Promise<void>;
+  openDeleteItem: (itemType: "snippet" | "group", name: string) => void;
 }
 
 export default function SnippetCard(props: SnippetCardProps) {
-  const { item, toggleFavourite } = props;
+  const { item, toggleFavourite, openDeleteItem } = props;
+
+  const params = useParams();
+  const { groupName } = params; // Including virtual groups recent and favourites
 
   const navigate = useNavigate();
 
@@ -30,7 +34,7 @@ export default function SnippetCard(props: SnippetCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => {
-        navigate(`/group/${item.groupName}/${item.name}`);
+        navigate(`/group/${item.groupName}/${item.name}?prevGroup=${groupName}`);
       }}
     >
       {/* Header */}
@@ -41,10 +45,10 @@ export default function SnippetCard(props: SnippetCardProps) {
 
         <h3 className="text-[#f8f8f2] font-medium truncate mr-auto">{item.name}</h3>
 
-        {hovered &&
+        {hovered && !["recent", "favourites"].includes(groupName || "") &&
           <button className="text-[#ff5555] hover:text-[#ff79c6] mr-3" onClick={(e) => {
             e.stopPropagation();
-            console.log("delete snippet");
+            openDeleteItem("snippet", item.name);
           }}>
             <FaTrash size={14} />
           </button>

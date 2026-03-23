@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { get_group, get_groups, get_snippets, create_item, update_item } from "../api";
+import { get_group, get_groups, get_snippets, create_item, update_item, delete_item } from "../api";
 import Navbar from "../components/dashboard/navbar";
 import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
@@ -8,6 +8,7 @@ import CreateItem from "../components/popups/createitem";
 import SnippetCard from "../components/dashboard/snippetcard";
 import EditItem from "../components/popups/edititem";
 import { StatusBar } from "../components/statusbar";
+import DeleteItem from "../components/popups/deleteitem";
 
 export default function Dashboard() {
   // Extract groupName from url params
@@ -31,7 +32,7 @@ export default function Dashboard() {
   const [createItemStatus, setCreateItemStatus] = useState<{
     status: "default" | "error";
     message: string;
-  }>({ status: "default", message: "No issue" });
+  }>({ status: "default", message: "" });
 
   function open_create_item(itemType: "snippet" | "group") {
     setCreateItemType(itemType);
@@ -109,6 +110,50 @@ export default function Dashboard() {
     setEditGroupStatus({ status: "default", message: "" });
   }
 
+  // Delete a snippet or a group
+  const [deleteItemOpen, setDeleteItemOpen] = useState<boolean>(false);
+  const [deleteItemType, setDeleteItemType] = useState<"snippet" | "group">(
+    "snippet",
+  );
+  const [deleteItemName, setDeleteItemName] = useState<string>("");
+  const [deleteItemStatus, setDeleteItemStatus] = useState<{
+    status: "default" | "error";
+    message: string;
+  }>({ status: "default", message: "" });
+
+  function open_delete_item(itemType: "snippet" | "group", name: string) {
+    setDeleteItemType(itemType);
+    setDeleteItemName(name);
+    setDeleteItemStatus({ status: "default", message: "" });
+    setDeleteItemOpen(true);
+  }
+
+  async function confirm_delete_item(itemType: "snippet" | "group", name: string) {
+    const response = await delete_item(itemType, groupName || "", name);
+
+    if (!response.status) {
+      setDeleteItemStatus({ status: "error", message: response.message });
+      return;
+    }
+
+    setDeleteItemOpen(false);
+    setDeleteItemStatus({ status: "default", message: "" });
+
+    if (itemType === "group" && groupName === name) {
+      navigate("/group/default/");
+    }
+    const groups = await get_groups();
+    setGroups(groups.status ? groups.groups : []);
+
+    const snippets = await get_snippets(groupName || "");
+    setSnippets(snippets.status ? snippets.snippets : []);
+  }
+
+  function cancel_delete_item() {
+    setDeleteItemOpen(false);
+    setDeleteItemStatus({ status: "default", message: "" });
+  }
+
   // Group list
   const [groups, setGroups] = useState<
     {
@@ -168,7 +213,7 @@ export default function Dashboard() {
       {/* Body */}
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
-        <Sidebar groups={groups} openCreateItem={open_create_item} />
+        <Sidebar groups={groups} openCreateItem={open_create_item} openDeleteItem={open_delete_item} />
 
         {/* Main Content */}
         <main className="flex flex-col flex-1 min-h-0 p-3">
@@ -215,7 +260,7 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-2">
               {snippets.map((item) => (
-                <SnippetCard key={item.id} item={item} toggleFavourite={toggle_favourite} />
+                <SnippetCard key={item.id} item={item} toggleFavourite={toggle_favourite} openDeleteItem={open_delete_item} />
               ))}
             </div>
           </div>
@@ -243,6 +288,16 @@ export default function Dashboard() {
           onConfirm={confirm_edit_group}
           onClose={cancel_edit_group}
           status={editGroupStatus}
+        />
+      }
+      {
+        deleteItemOpen &&
+        <DeleteItem
+          itemType={deleteItemType}
+          itemName={deleteItemName}
+          onConfirm={confirm_delete_item}
+          onClose={cancel_delete_item}
+          status={deleteItemStatus}
         />
       }
     </div>
