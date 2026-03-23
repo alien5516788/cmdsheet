@@ -1,16 +1,19 @@
+export type StatusBarItem = {
+  id: number;
+  status: "default" | "success" | "warning" | "error";
+  message: string;
+};
+
 interface StatusBarProps {
-  status: {
-    status: "default" | "success" | "warning" | "error";
-    message: string;
-  };
-  setStatus: React.Dispatch<React.SetStateAction<{
-    status: "default" | "success" | "warning" | "error";
-    message: string;
-  }>>
+  statusQueue: StatusBarItem[];
+  onPop: () => void;
+  onPromote: (id: number) => void;
 }
 
 export function StatusBar(props: StatusBarProps) {
-  const { status, setStatus } = props;
+  const { statusQueue, onPop, onPromote } = props;
+
+  const hasMessages = statusQueue.length > 0;
 
   const themeConfig = {
     default: "text-[#6272a4]",
@@ -27,23 +30,38 @@ export function StatusBar(props: StatusBarProps) {
   };
 
   return (
-    <div className="flex items-center justify-between px-3 py-1 border border-[#44475a] bg-[#282a36] font-mono
-      text-sm sticky bottom-0 opacity-75"
-    >
-      {/* message */}
-      <div className={`truncate ${themeConfig[status.status]}`}>
-        {`[${iconConfig[status.status]}] `}
-        {status.message}
+    <div className="flex items-center justify-between px-3 py-1 border border-[#44475a] bg-[#282a36] font-mono text-sm
+      sticky bottom-0 opacity-75">
+      {/* Messages */}
+      <div className={`truncate flex items-center gap-6
+        ${hasMessages ? themeConfig[statusQueue[0].status] : themeConfig.default}`}
+      >
+        {/* Current message */}
+        {hasMessages
+          ? `[${iconConfig[statusQueue[0].status]} ${statusQueue[0].status}]: ${statusQueue[0].message}`
+          : `[${iconConfig.default} default]: No Issue`
+        }
+
+        {/* Other messages */}
+        {statusQueue.length > 1 && statusQueue.slice(1).map((item) => (
+          <button
+            key={item.id}
+            onClick={() => onPromote(item.id)}
+            className={`text-sm ${themeConfig[item.status]} hover:scale-110 transition`}
+            title={item.message}
+          >
+            {`[${iconConfig[item.status]} ${item.status}]`}
+          </button>
+        ))}
       </div>
 
-      {/* clear if not default */}
-      <button
-        onClick={() => setStatus({ status: "default", message: "No issue" })}
-        className="ml-3 text-[#6272a4] hover:text-[#f8f8f2] transition-colors px-3"
-        title="Clear status"
-      >
-        x
-      </button>
+      {/* Clear current message */}
+      {
+        hasMessages &&
+        <button onClick={onPop} className="text-[#6272a4] hover:text-[#f8f8f2] px-2">
+          x
+        </button>
+      }
     </div>
   );
 }

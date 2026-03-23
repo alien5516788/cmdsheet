@@ -18,7 +18,7 @@ interface EditItemProps {
 
 export default function EditItem(props: EditItemProps) {
   const { itemType, item, onConfirm, onClose, status } = props;
-  
+
   const themeConfig = {
     default: {
       border: "border-[#8be9fd]",
@@ -55,12 +55,10 @@ export default function EditItem(props: EditItemProps) {
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onClose}
     >
-      <div
-        className={`bg-[#282a36] border rounded-xl p-6 w-[420px] shadow-lg ${currentTheme.border}`}
+      <div className={`bg-[#282a36] border rounded-xl p-6 w-[420px] shadow-lg ${currentTheme.border}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -29,12 +29,10 @@ export default function DeleteItem(props: DeleteItemProps) {
   const currentTheme = themeConfig[status.status];
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onClose}
     >
-      <div
-        className={`bg-[#282a36] border rounded-xl p-6 w-[400px] shadow-lg ${currentTheme.border}`}
+      <div className={`bg-[#282a36] border rounded-xl p-6 w-[400px] shadow-lg ${currentTheme.border}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

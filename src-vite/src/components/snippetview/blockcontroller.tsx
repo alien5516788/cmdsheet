@@ -7,15 +7,15 @@ interface BlockControllerProps {
 
 export default function BlockController(props: BlockControllerProps) {
   /*
-    - Block controller is responsible for adding and removing anipept BlockControllerProps
-    - There are following block types currently,
-      - text: Renders a text block
-      - code: Renders a code block
-      - math: Renders a math block
-    - By default there must be a top most controller to add blocks at the beginning
-    - Top most controllers have index -1 and cannot be removed
-    - Upon adding a block a new block controller is added below the block for every blocks
-    - A controller adds or delete blocks below or above it, except the last controller whihc doesn have
+    Block controller is responsible for adding and removing anipept BlockControllerProps
+    There are following block types currently,
+      text: Renders a text block
+      code: Renders a code block
+      math: Renders a math block
+    By default there must be a top most controller to add blocks at the beginning
+    Top most controllers have index -1 and cannot be removed
+    Upon adding a block a new block controller is added below the block for every blocks
+    A controller adds or delete blocks below or above it, except the last controller whihc doesn have
       a block below
   */
   const { index, addBlock, removeBlock, last } = props;

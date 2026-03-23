@@ -19,18 +19,18 @@ interface SnippetEditorProps {
 export default function SnippetEditor(props: SnippetEditorProps) {
   const { content, updateContent } = props;
 
-  // block renderer
+  /*
+    Block renderer
+    Returns the appropriate renderer component for the given block
+    Blocks are versioned to allow for future renderer updates
+  */
   function get_renderer(block: SnippetBlock) {
-    /*
-      - Returns the appropriate renderer component for the given block
-      - Blocks are versioned to allow for future renderer updates
-    */
     const renderer = block.renderer + "_v" + block.version;
 
-    // TODO: Implement text and math renderer
     switch (renderer) {
       case "code_v1":
         return <CodeV1 key={block.id} block={block} updateContent={updateContent} />;
+      // TODO: Implement text and math renderer
       // case "text_v1":
       //   return <TextV1 key={block.id} block={block} updateContent={updateContent} />;
       // case "math_v1":
@@ -40,17 +40,18 @@ export default function SnippetEditor(props: SnippetEditorProps) {
     }
   }
 
+  /*
+    Inserts a new block at the given position
+    Existing blocks are shifted down
+  */
   function add_block(posIndex: number, renderer: "text" | "code" | "math") {
-    /*
-      Inserts a new block at the given position
-      Existing blocks are shifted down
-    */
     const newBlock: SnippetBlock = {
       id: crypto.randomUUID(),
       version: 1,
       renderer,
       content: ""
     };
+
     updateContent(prev => {
       const newBlocks = [...prev];
       newBlocks.splice(posIndex, 0, newBlock);
@@ -58,10 +59,13 @@ export default function SnippetEditor(props: SnippetEditorProps) {
     });
   }
 
+  /*
+    Removes the block at the given position
+    Existing blocks are shifted up
+  */
   function remove_block(posIndex: number) {
     updateContent(prev => [...prev.slice(0, posIndex), ...prev.slice(posIndex + 1)]);
   }
-
 
   return (
     <div className="flex-1 text-sm font-mono whitespace-pre-wrap">

@@ -9,6 +9,7 @@ import SnippetCard from "../components/dashboard/snippetcard";
 import EditItem from "../components/popups/edititem";
 import { StatusBar } from "../components/statusbar";
 import DeleteItem from "../components/popups/deleteitem";
+import useStatusBar from "../hooks/useStatusBar";
 
 export default function Dashboard() {
   /*
@@ -19,18 +20,15 @@ export default function Dashboard() {
   const { groupName } = params;
 
   /*
-    Navigate to other groups or snippets
+    Navigate to other groups or snippet views
   */
   const navigate = useNavigate();
 
   /*
-    Status bar for showing success/error messages
+    Status bar status for showing success/error messages
     Some messages are not shown here
   */
-  const [statusBarStatus, setStatusBarStatus] = useState<{
-    status: "default" | "success" | "warning" | "error";
-    message: string;
-  }>({ status: "default", message: "No issue" });
+  const { statusBarQueue, pushToStatusBar, popFromStatusBar, promoteInStatusBar } = useStatusBar(5);
 
   /*
     States and functions to create a new group or snippet
@@ -46,16 +44,16 @@ export default function Dashboard() {
   }>({ status: "default", message: "" });
 
   function open_create_item(itemType: "snippet" | "group") {
-    // To create a new item, only item type is required for the popup
     setCreateItemType(itemType);
     setCreateItemStatus({ status: "default", message: "" });
     setCreateItemOpen(true);
   }
 
   async function confirm_create_item(name: string, description: string) {
+    // To create a new item, only item type is required for the popup
     // This function is called within the popup
-    // To create a group, the groupName parameter is not used, but is included for compatibility with api
-    // Group name includes virtual groups as well, but ui doesn't show create button for virtual groups
+    // To create a group, the groupName parameter is not used, but is included for compatibility with API
+    // Group name includes virtual groups as well, but ui doesn't show create button inside virtual groups
     //   or the api rejects them anyway
     const response = await create_item(createItemType, groupName || "", name, description);
 
@@ -65,37 +63,41 @@ export default function Dashboard() {
     }
 
     setCreateItemOpen(false);
-    setStatusBarStatus({ status: "success", message: `Created ${createItemType} "${name}"` });
+    pushToStatusBar({ status: "success", message: `Created ${createItemType} "${name}"` });
 
     // The popup doesn't know which item type was Created
     // To ensure the item info is updated, both groups and snippets are fetched again
     const groups = await get_groups();
-    if (!groups.status) setStatusBarStatus({ status: "warning", message: groups.message + "(group list may be out of sync)" });
-    else setGroups(groups.groups);
+    if (groups.status) setGroups(groups.groups);
+    else pushToStatusBar({ status: "warning", message: groups.message + " (group list may be out of sync)" });
 
     const snippets = await get_snippets(groupName || "");
-    if (!snippets.status) setStatusBarStatus({ status: "warning", message: snippets.message + "(snippet list may be out of sync)" });
-    else setSnippets(snippets.snippets);
+    if (snippets.status) setSnippets(snippets.snippets);
+    else pushToStatusBar({ status: "warning", message: snippets.message + " (snippet list may be out of sync)" });
   }
 
   function cancel_create_item() {
     setCreateItemOpen(false);
-    setStatusBarStatus({ status: "default", message: "Create operation cancelled" });
+    pushToStatusBar({ status: "default", message: "Create operation cancelled" });
   }
 
-  // Toggle favourite for a snippet
+  /*
+    Toggles the favourited status of a snippet
+    ISSUE: favourite count in side bar doesn't update unless reloaded
+  */
   async function toggle_favourite(groupName: string, name: string, favourite: boolean) {
-    // ISSUE: favourite count in side bar doesn't update unless reloaded
     const response = await update_item("snippet", groupName, name, null, null, favourite, null);
 
     if (!response.status) {
-      setStatusBarStatus({ status: "error", message: response.message });
+      pushToStatusBar({ status: "error", message: response.message });
       return;
     }
   }
 
-  // Update group
-  // Only groups can be updated from the dashboard
+  /*
+    States and functions for editing a group
+    Only groups can be updated from the dashboard
+  */
   const [editGroupOpen, setEditGroupOpen] = useState<boolean>(false);
   const [editGroupStatus, setEditGroupStatus] = useState<{
     status: "default" | "error";
@@ -109,8 +111,7 @@ export default function Dashboard() {
   }
 
   async function confirm_edit_group(name: string, newName: string, description: string, tags?: string[] | null) {
-    // Groups don't have tags
-    // 'tags' parameter is only there to be compatible with the edit item component
+    // Groups don't have tags, but it is included for popup prop compatibility
     const response = await update_item("group", groupName || "", name, newName, description, null, tags ? null : null);
 
     if (!response.status) {
@@ -119,10 +120,16 @@ export default function Dashboard() {
     }
 
     setEditGroupOpen(false);
-    setEditGroupStatus({ status: "default", message: "" })
+    pushToStatusBar({ status: "success", message: `Updated group "${name}"` });
 
-    // ISSUE: Doesn't reload if the group name is unchanged
-    navigate(`/group/${newName}`);
+    // Refresh the page to syn with changes
+    if (name !== newName) {
+      // Navigate to the new group name if group name was updated
+      navigate(`/group/${newName}`);
+    } else {
+      // ISSUE: this doesn't work because the url is the same
+      navigate(`/group/${name}`);
+    }
   }
 
   function cancel_edit_group() {
@@ -130,7 +137,9 @@ export default function Dashboard() {
     setEditGroupStatus({ status: "default", message: "" });
   }
 
-  // Delete a snippet or a group
+  /*
+    States and methods for deleting an item
+  */
   const [deleteItemOpen, setDeleteItemOpen] = useState<boolean>(false);
   const [deleteItemType, setDeleteItemType] = useState<"snippet" | "group">(
     "snippet",
@@ -149,6 +158,7 @@ export default function Dashboard() {
   }
 
   async function confirm_delete_item(itemType: "snippet" | "group", name: string) {
+    // To delete an item, both item type and item name are required for the popup
     const response = await delete_item(itemType, groupName || "", name);
 
     if (!response.status) {
@@ -157,16 +167,24 @@ export default function Dashboard() {
     }
 
     setDeleteItemOpen(false);
-    setDeleteItemStatus({ status: "default", message: "" });
+    pushToStatusBar({ status: "success", message: `Deleted ${itemType} "${name}"` });
 
+    // If the deleted item was the current group, navigate to the default group
+    //   because the current group name is no longer valid
     if (itemType === "group" && groupName === name) {
       navigate("/group/default/");
+      return;
     }
+
+    // Refresh the group list and snippet list after deletion
+    // Becuase the function doesn't know what item type was deleted
     const groups = await get_groups();
-    setGroups(groups.status ? groups.groups : []);
+    if (groups.status) setGroups(groups.groups);
+    else pushToStatusBar({ status: "warning", message: groups.message + " (group list may be out of sync)" });
 
     const snippets = await get_snippets(groupName || "");
-    setSnippets(snippets.status ? snippets.snippets : []);
+    if (snippets.status) setSnippets(snippets.snippets);
+    else pushToStatusBar({ status: "warning", message: snippets.message + " (snippet list may be out of sync)" });
   }
 
   function cancel_delete_item() {
@@ -206,20 +224,19 @@ export default function Dashboard() {
     }[]
   >([]);
 
-
   useEffect(() => {
     async function get_dashboard_info() {
-      let response = await get_groups();
-      if (response.status) setGroups(response.groups);
-      else setStatusBarStatus({ status: "error", message: response.message });
+      const groups = await get_groups();
+      if (groups.status) setGroups(groups.groups);
+      else pushToStatusBar({ status: "error", message: groups.message });
 
-      response = await get_group(groupName || "");
-      if (response.status) setGroup(response.group);
-      else setStatusBarStatus({ status: "error", message: response.message });
+      const group = await get_group(groupName || "");
+      if (group.status) setGroup(group.group);
+      else pushToStatusBar({ status: "error", message: group.message });
 
-      response = await get_snippets(groupName || "");
-      if (response.status) setSnippets(response.snippets);
-      else setStatusBarStatus({ status: "error", message: response.message });
+      const snippets = await get_snippets(groupName || "");
+      if (snippets.status) setSnippets(snippets.snippets);
+      else pushToStatusBar({ status: "error", message: snippets.message });
     }
 
     get_dashboard_info();
@@ -286,7 +303,8 @@ export default function Dashboard() {
           </div>
 
           {/* Status bar */}
-          <StatusBar status={statusBarStatus} setStatus={setStatusBarStatus} />
+          <StatusBar statusQueue={statusBarQueue} onPop={popFromStatusBar} onPromote={promoteInStatusBar} />
+
         </main>
       </div>
 

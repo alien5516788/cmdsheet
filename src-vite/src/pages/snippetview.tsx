@@ -6,6 +6,7 @@ import EditItem from "../components/popups/edititem";
 import type { SnippetBlock } from "../components/snippetview/snippeteditor";
 import SnippetEditor from "../components/snippetview/snippeteditor";
 import { StatusBar } from "../components/statusbar";
+import useStatusBar from "../hooks/useStatusBar";
 
 
 interface Snippet {
@@ -17,43 +18,51 @@ interface Snippet {
 }
 
 export default function SnippetView() {
+  /*
+    Content of the snippetview depends on the group and snippet name
+  */
   const { groupName, snippetName } = useParams();
-  const [searchParams] = useSearchParams();
 
+  /*
+    Navigate back to the dashboard or group view
+    groupName is the actual group name which the snippet belongs to
+    But the redirection can be happened from both real groups and virtual groups (recent, favourites)
+    In order to go back the previous group name is needed, regardless being real or virtual,
+      so the previous group name is taken from the search params
+  */
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Status bar
-  const [statusBarStatus, setStatusBarStatus] = useState<{
-    status: "default" | "success" | "warning" | "error";
-    message: string;
-  }>({ status: "default", message: "No issue" });
+  /*
+    Status bar status for showing success/error messages
+    Some messages are not shown here
+  */
+  const { statusBarQueue, pushToStatusBar, popFromStatusBar, promoteInStatusBar } = useStatusBar(5);
 
-  // Current snippet
-  const [snippet, setSnippet] = useState<Snippet>({
-    name: "",
-    description: "",
-    tags: [],
-    content: [],
-    favourite: false,
-  });
+
 
   // Track changes to current snippet content
   // Snippet editor works with this state to track changes before saving
   const [updatedContent, setUpdatedContent] = useState<SnippetBlock[]>([]);
 
-  // Favourite state
+  /*
+    Toggles the favourited status of a snippet
+    ISSUE: favourite count in side bar doesn't update unless reloaded
+  */
   const [favourite, setFavourite] = useState(false);
 
   async function toggle_favourite(name: string, favourite: boolean) {
     const response = await update_item("snippet", groupName || "", name, null, null, favourite, null);
 
     if (!response.status) {
-      setStatusBarStatus({ status: "error", message: response.message });
+      pushToStatusBar({ status: "error", message: response.message });
       return;
     }
   }
 
-  // Update snippet
+  /*
+    Status and functions for the edit snippet dialog
+  */
   const [editSnippetOpen, setEditSnippetOpen] = useState<boolean>(false);
   const [editSnippetStatus, setEditSnippetStatus] = useState<{
     status: "default" | "error";
@@ -67,6 +76,7 @@ export default function SnippetView() {
   }
 
   async function confirm_edit_snippet(name: string, newName: string, description: string, tags?: string[] | null) {
+    // Favourited state and content of the snipept is not updated here
     const response = await update_item("snippet", groupName || "", name, newName, description, null, tags ? tags : null);
 
     if (!response.status) {
@@ -75,8 +85,8 @@ export default function SnippetView() {
     }
 
     setEditSnippetOpen(false);
-    setEditSnippetStatus({ status: "default", message: "" });
 
+    // Refresh the snippet view to sync with changes
     // ISSUE: Doesn't reload if the snippet name is unchanged
     navigate(`/group/${groupName}/${newName}`);
   }
@@ -86,6 +96,15 @@ export default function SnippetView() {
     setEditSnippetStatus({ status: "default", message: "" });
   }
 
+  // Current snippet
+  const [snippet, setSnippet] = useState<Snippet>({
+    name: "",
+    description: "",
+    tags: [],
+    content: [],
+    favourite: false,
+  });
+
   useEffect(() => {
     async function get_snippetview_info() {
       const response = await get_snippet(groupName || "default", snippetName || "");
@@ -94,32 +113,37 @@ export default function SnippetView() {
         setFavourite(response.snippet.favourite);
         setUpdatedContent(response.snippet.content || []); // important: initialize updatedContent
       } else {
-        setStatusBarStatus({ status: "error", message: response.message });
+        pushToStatusBar({ status: "error", message: response.message });
       }
     }
 
     get_snippetview_info();
   }, [snippetName, groupName]);
 
-  // Prevent render on initial load
-  // Becuase updatedContent is initialized after the first render
-  // so the first save is skipped
+
+  /*
+    Sync snippet content with db
+  */
   const firstRender = useRef(true);
 
   useEffect(() => {
+    // Prevent render on initial load
+    // Becuase updatedContent is initialized after the first render
+    // so the first save is skipped
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
+
+    // If there is no content, do nothing
+    // ISSUE: problamatic isn't it ?
     if (!updatedContent || updatedContent.length === 0) return;
 
     async function update_snippet_info() {
       const response = await update_snippet_content(
-        groupName || "",
-        snippetName || "",
-        updatedContent
+        groupName || "", snippetName || "", updatedContent
       );
-      if (!response.status) setStatusBarStatus({ status: "error", message: response.message });
+      if (!response.status) pushToStatusBar({ status: "error", message: response.message });
     }
 
     update_snippet_info();
@@ -129,7 +153,7 @@ export default function SnippetView() {
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col">
       <div className="h-full w-[70vw] mx-auto flex">
-        {/* Side back button */}
+        {/* Large back button aside */}
         <button
           className="flex h-full w-20 items-center gap-2 text-[#8be9fd]
           bg-[#44475a] opacity-10 hover:opacity-50 p-3"
@@ -201,7 +225,7 @@ export default function SnippetView() {
           </div>
 
           {/* Status bar */}
-          <StatusBar status={statusBarStatus} setStatus={setStatusBarStatus} />
+          <StatusBar statusQueue={statusBarQueue} onPop={popFromStatusBar} onPromote={promoteInStatusBar} />
         </main>
       </div>
 
