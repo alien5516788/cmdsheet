@@ -11,20 +11,31 @@ import { StatusBar } from "../components/statusbar";
 import DeleteItem from "../components/popups/deleteitem";
 
 export default function Dashboard() {
-  // Extract groupName from url params
-  // Main content of the dashboard is displayed based on the groupName
+  /*
+    Main content of the dashboard is displayed based on the groupName
+    This includes virtual groups recent and favourites
+  */
   const params = useParams();
   const { groupName } = params;
 
+  /*
+    Navigate to other groups or snippets
+  */
   const navigate = useNavigate();
 
-  // Status bar
+  /*
+    Status bar for showing success/error messages
+    Some messages are not shown here
+  */
   const [statusBarStatus, setStatusBarStatus] = useState<{
     status: "default" | "success" | "warning" | "error";
     message: string;
   }>({ status: "default", message: "No issue" });
 
-  // Add a new snippet or a group
+  /*
+    States and functions to create a new group or snippet
+    Status for create item is shown inside the popup itself, not inside the status bar
+  */
   const [createItemOpen, setCreateItemOpen] = useState<boolean>(false);
   const [createItemType, setCreateItemType] = useState<"snippet" | "group">(
     "snippet",
@@ -35,13 +46,18 @@ export default function Dashboard() {
   }>({ status: "default", message: "" });
 
   function open_create_item(itemType: "snippet" | "group") {
+    // To create a new item, only item type is required for the popup
     setCreateItemType(itemType);
     setCreateItemStatus({ status: "default", message: "" });
     setCreateItemOpen(true);
   }
 
-  async function confirm_create_item(itemType: "snippet" | "group", name: string, description: string) {
-    const response = await create_item(itemType, groupName || "", name, description);
+  async function confirm_create_item(name: string, description: string) {
+    // This function is called within the popup
+    // To create a group, the groupName parameter is not used, but is included for compatibility with api
+    // Group name includes virtual groups as well, but ui doesn't show create button for virtual groups
+    //   or the api rejects them anyway
+    const response = await create_item(createItemType, groupName || "", name, description);
 
     if (!response.status) {
       setCreateItemStatus({ status: "error", message: response.message });
@@ -49,18 +65,22 @@ export default function Dashboard() {
     }
 
     setCreateItemOpen(false);
-    setCreateItemStatus({ status: "default", message: "" })
+    setStatusBarStatus({ status: "success", message: `Created ${createItemType} "${name}"` });
 
+    // The popup doesn't know which item type was Created
+    // To ensure the item info is updated, both groups and snippets are fetched again
     const groups = await get_groups();
-    setGroups(groups.status ? groups.groups : []);
+    if (!groups.status) setStatusBarStatus({ status: "warning", message: groups.message + "(group list may be out of sync)" });
+    else setGroups(groups.groups);
 
     const snippets = await get_snippets(groupName || "");
-    setSnippets(snippets.status ? snippets.snippets : []);
+    if (!snippets.status) setStatusBarStatus({ status: "warning", message: snippets.message + "(snippet list may be out of sync)" });
+    else setSnippets(snippets.snippets);
   }
 
   function cancel_create_item() {
     setCreateItemOpen(false);
-    setCreateItemStatus({ status: "default", message: "" });
+    setStatusBarStatus({ status: "default", message: "Create operation cancelled" });
   }
 
   // Toggle favourite for a snippet

@@ -3,7 +3,6 @@ import { useState } from "react";
 interface CreateItemProps {
   itemType: "snippet" | "group";
   onConfirm: (
-    itemType: "snippet" | "group",
     name: string,
     description: string,
   ) => Promise<void>;
@@ -85,7 +84,7 @@ export default function CreateItem(props: CreateItemProps) {
           </button>
           <button
             className={`px-4 py-2 rounded transition ${currentTheme.button}`}
-            onClick={() => onConfirm(itemType, name, description)}
+            onClick={() => onConfirm(name, description)}
           >
             Confirm
           </button>
