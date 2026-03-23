@@ -142,3 +142,13 @@ class Api:
             return {"status": False, "message": str(e)}
         finally:
             session.close()
+
+    def search_snippets(self, query: str):
+        session = self._init_db.get_session()
+        try:
+            result = SnippetOps(session).search_snippets(query.strip())
+            return {"status": True, "result": result}
+        except Exception as e:
+            return {"status": False, "message": str(e)}
+        finally:
+            session.close()

@@ -1,6 +1,6 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { get_group, get_groups, get_snippets, create_item, update_item, delete_item } from "../api";
-import Navbar from "../components/dashboard/navbar";
+import Navbar, { type SearchResult } from "../components/dashboard/navbar";
 import Sidebar from "../components/dashboard/sidebar";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,6 +18,20 @@ export default function Dashboard() {
   */
   const params = useParams();
   const { groupName } = params;
+
+  /*
+    Highlight a searched snippet
+    The search results from navbar search can point to a snippet cards inside a group
+  */
+  const [searchResult, setSearchResult] = useState<SearchResult[]>([]);
+  
+  // Tracks the snippet elements by their id for scroll restoration
+  const snippetRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  
+  function scroll_to_snippet(id: number) {
+    const el = snippetRefs.current[id];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   /*
     Navigate to other groups or snippet views
@@ -242,10 +256,11 @@ export default function Dashboard() {
     get_dashboard_info();
   }, [groupName]);
 
+
   return (
     <div className="h-screen bg-[#282a36] text-[#f8f8f2] flex flex-col overflow-y-hidden">
       {/* Navbar */}
-      <Navbar />
+      <Navbar searchResult={searchResult} setSearchResult={setSearchResult} scrollToSnippet={scroll_to_snippet} pushToStatusBar={pushToStatusBar} />
 
       {/* Body */}
       <div className="flex flex-1 min-h-0">
@@ -297,7 +312,21 @@ export default function Dashboard() {
           <div className="text-[#6272a4] flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-2">
               {snippets.map((item) => (
-                <SnippetCard key={item.id} item={item} toggleFavourite={toggle_favourite} openDeleteItem={open_delete_item} />
+                // Outer div with id for scroll restoration
+                <div
+                  id={`snippet-${item.id}`}
+                  ref={(el: HTMLDivElement | null) => {
+                    snippetRefs.current[item.id] = el;
+                  }}
+                  key={item.id}
+                >
+                  <SnippetCard
+                    item={item}
+                    toggleFavourite={toggle_favourite}
+                    openDeleteItem={open_delete_item}
+                    searchResult={searchResult}
+                  />
+                </div>
               ))}
             </div>
           </div>

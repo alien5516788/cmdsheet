@@ -94,3 +94,12 @@ export async function delete_item(itemType: "snippet" | "group", groupName: stri
     return { status: false, message: "Failed to delete item" };
   }
 }
+
+export async function search_snippets(query: string) {
+  try {
+    return await pywebview.api.search_snippets(query);
+  } catch (err) {
+    await pywebview.api.print_log("Log: Failed to search snippets\n" + err);
+    return { status: false, message: "Failed to search snippets" };
+  }
+}

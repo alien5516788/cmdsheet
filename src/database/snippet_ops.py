@@ -1,9 +1,9 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from database.group_ops import GroupOps
 
-from .models import Snippet, Tag, snippet_tags
+from .models import Group, Snippet, Tag, snippet_tags
 
 # ISSUE: Allmost all functions uses groupName + name to identify a snippet instead of using id
 # Hard to fix becuase frontend also has to be refactored, but consider using id later on
@@ -193,6 +193,36 @@ class SnippetOps:
         snippet = self._assert_snippet(groupName, name)
         snippet.content = content
         self.session.commit()
+
+    def search_snippets(self, query: str):
+        q = f"%{query}%"
+
+        snippets = (
+            self.session.execute(
+                select(Snippet)
+                .join(Group, Snippet.group_id == Group.id)
+                .outerjoin(snippet_tags, Snippet.id == snippet_tags.c.snippet_id)
+                .outerjoin(Tag, Tag.id == snippet_tags.c.tag_id)
+                .where(
+                    or_(
+                        Snippet.name.ilike(q),
+                        Tag.name.ilike(q),
+                    )
+                )
+                .distinct()
+            )
+            .scalars()
+            .all()
+        )
+
+        return [
+            {
+                "id": snippet.id,
+                "groupName": snippet.group.name,
+                "name": snippet.name,
+            }
+            for snippet in snippets
+        ]
 
     # def move_snippet(self, src_group: str, snippet_name: str, dest_group: str):
     #     # TODO: Review and test this function

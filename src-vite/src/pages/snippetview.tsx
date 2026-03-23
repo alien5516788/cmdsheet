@@ -29,6 +29,7 @@ export default function SnippetView() {
     But the redirection can be happened from both real groups and virtual groups (recent, favourites)
     In order to go back the previous group name is needed, regardless being real or virtual,
       so the previous group name is taken from the search params
+    Can have 'prevGroup' query param
   */
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ export default function SnippetView() {
 
     // Refresh the snippet view to sync with changes
     // ISSUE: Doesn't reload if the snippet name is unchanged
-    navigate(`/group/${groupName}/${newName}`);
+    navigate(`/group/${groupName}/${newName}?prevGroup=${searchParams.get("prevGroup")}`);
   }
 
   function cancel_edit_snippet() {

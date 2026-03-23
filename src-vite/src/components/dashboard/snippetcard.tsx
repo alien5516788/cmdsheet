@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaCode, FaStar, FaTrash } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import type { SearchResult } from "./navbar";
 
 interface SnippetCardProps {
   item: {
@@ -13,24 +14,46 @@ interface SnippetCardProps {
   };
   toggleFavourite: (groupName: string, name: string, favourite: boolean) => Promise<void>;
   openDeleteItem: (itemType: "snippet" | "group", name: string) => void;
+  searchResult: SearchResult[];
 }
 
 export default function SnippetCard(props: SnippetCardProps) {
-  const { item, toggleFavourite, openDeleteItem } = props;
+  const { item, toggleFavourite, openDeleteItem, searchResult } = props;
 
   const params = useParams();
-  const { groupName } = params; // Including virtual groups recent and favourites
+  const { groupName } = params; // Includes virtual groups recent and favourites
 
+  /*
+    Navigate to the snippetview page when clicked
+  */
   const navigate = useNavigate();
 
-  // Track if item count is hovered
-  // If hovered, show delete button
+  /*
+    Check if the item is in the search results
+    If it is, highlight the card with a yellow border
+    ISSUE: This searching for match introduce a performance overhead for a large list
+            Consider using a more efficient search algorithm or indexing strategy
+  */
+  const searchMatched = searchResult.some((result: SearchResult) => {
+    return result.name === item.name && result.groupName === item.groupName;
+  });
+
+  /*
+    Track if item count is hovered
+    If hovered, show delete button
+    Not shown inside virtual groups
+  */
   const [hovered, setHovered] = useState(false);
 
+  /*
+    Track if the item is a favourite
+    If it is, show a star icon
+  */
   const [favourite, setFavourite] = useState(item.favourite);
 
   return (
-    <div className="border border-[#44475a] p-4 hover:border-[#bd93f9] transition cursor-pointer"
+    <div className={`border border-[#44475a] p-4 hover:border-[#bd93f9] transition cursor-pointer
+      ${searchMatched ? "border-2 border-[#f1fa8c]" : ""}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => {
