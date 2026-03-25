@@ -305,7 +305,7 @@ export default function Dashboard() {
           {/* Description */}
           <div className="mb-4 p-3 bg-[#2c2e3a] rounded text-[#f8f8f2] opacity-80 px-4">
             <p className="text-[#6272a4]">
-              {group.description || "No description available."}
+              {group.description ? group.description : <i className="opacity-25">No description available</i>}
             </p>
           </div>
 

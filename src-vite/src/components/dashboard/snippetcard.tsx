@@ -90,16 +90,9 @@ export default function SnippetCard(props: SnippetCardProps) {
       </div>
 
       {/* Description */}
-      {
-        item.description ?
-          <p className="text-[#6272a4] text-sm line-clamp-2 mb-3">
-            {item.description}
-          </p>
-          :
-          <p className="text-[#6272a4] text-sm line-clamp-2 mb-3 opacity-25">
-            <i>No description</i>
-          </p>
-      }
+      <p className="text-[#6272a4] text-sm line-clamp-2 mb-3">
+        {item.description ? item.description : <i className="opacity-25">No description</i>}
+      </p>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 overflow-hidden max-h-[52px]">

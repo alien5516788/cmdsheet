@@ -197,7 +197,7 @@ export default function SnippetView() {
           </div>
 
           {/* Snippet info */}
-          <div className="mb-4 bg-[#2c2e3a] p-3">
+          <div className="mb-1 bg-[#2c2e3a] p-3">
             {/* Tags */}
             <div className="flex flex-wrap gap-2 my-2">
               {snippet.tags.length > 0 ? (
@@ -210,7 +210,7 @@ export default function SnippetView() {
                   </span>
                 ))
               ) : (
-                <span className="bg-[#6272a4] text-[#f8f8f2] px-2 py-0.5 rounded text-xs">
+                <span className="bg-[#6272a4] text-[#f8f8f2] px-2 py-0.5 rounded text-xs opacity-25">
                   <i>No tags</i>
                 </span>
               )}
@@ -218,7 +218,9 @@ export default function SnippetView() {
 
             {/* Description */}
             <div className="flex justify-between items-start mt-2">
-              <p className="text-[#6272a4]">{snippet.description || "No description available"}</p>
+              <p className="text-[#6272a4]">
+                {snippet.description ? snippet.description : <i className="opacity-25">{"No description available"}</i>}
+              </p>
             </div>
           </div>
 

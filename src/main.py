@@ -1,7 +1,5 @@
 import os
 import platform
-import sys
-from pathlib import Path
 
 import webview
 from dotenv import load_dotenv
