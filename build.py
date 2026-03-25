@@ -19,6 +19,7 @@ subprocess.run(
         add_data,
         "--name",
         "cmdsheet",
+        "--icon=assets/ico/com.github.alien5516788.cmdsheet.ico",
         "src/main.py",
     ],
     check=True,
