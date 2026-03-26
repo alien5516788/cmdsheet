@@ -1,3 +1,5 @@
+import { truncateString } from "../../utils/truncatestring";
+
 interface DeleteItemProps {
   itemType: "snippet" | "group";
   itemName: string;
@@ -42,12 +44,12 @@ export default function DeleteItem(props: DeleteItemProps) {
 
         {/* Warning Message */}
         <p className="text-[#f8f8f2] text-sm">
-          Are you sure you want to delete{" "}
-          <span className="text-[#ff5555] font-mono">{itemName}</span>?
+          Are you sure you want to delete
+          <strong className="text-[#ff5555]">{" " + truncateString(itemName, 35) + " "}</strong> ?
         </p>
 
         <p className="text-[#6272a4] text-xs mt-2">
-          This action cannot be undone.
+          This action cannot be undone
         </p>
 
         {/* Status Message */}

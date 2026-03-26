@@ -20,7 +20,7 @@ export default function BlockController(props: BlockControllerProps) {
   const { index, addBlock, removeBlock } = props;
 
   return (
-    <div className="flex gap-2 opacity-[0.01] hover:opacity-25 transition border px-2">
+    <div className="flex gap-2 opacity-[0.02] hover:opacity-25 transition border px-2">
       <button className="cursor-pointer" onClick={() => addBlock(index + 1, "heading")}>[H] Heading</button>
       <button className="cursor-pointer ml-4" onClick={() => addBlock(index + 1, "text")}>[T] Text</button>
       <button className="cursor-pointer ml-4" onClick={() => addBlock(index + 1, "code")}>{"</>"} Code</button>

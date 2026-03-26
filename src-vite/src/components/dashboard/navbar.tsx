@@ -135,12 +135,12 @@ export default function Navbar(props: NavbarProps) {
         {/* Actions */}
         <div className="flex items-center gap-5 whitespace-nowrap">
           {/* Settings */}
-          <button className="text-[#6272a4] hover:text-[#f8f8f2] transition">
+          <button className="text-[#6272a4] hover:text-[#f8f8f2] transition disabled cursor-not-allowed" title="Not implemented">
             <FaCog size={18} />
           </button>
 
           {/* Theme Toggle */}
-          <button className="text-[#f1fa8c] hover:text-[#f8f8f2] transition">
+          <button className="text-[#f1fa8c] hover:text-[#f8f8f2] transition disabled cursor-not-allowed" title="Not implemented">
             <FaMoon size={18} />
           </button>
         </div>

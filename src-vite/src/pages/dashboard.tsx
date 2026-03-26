@@ -93,7 +93,6 @@ export default function Dashboard() {
 
   function cancel_create_item() {
     setCreateItemOpen(false);
-    pushToStatusBar({ status: "default", message: "Create operation cancelled" });
   }
 
   /*
@@ -149,7 +148,6 @@ export default function Dashboard() {
 
   function cancel_edit_group() {
     setEditGroupOpen(false);
-    setEditGroupStatus({ status: "default", message: "" });
   }
 
   /*
@@ -204,7 +202,6 @@ export default function Dashboard() {
 
   function cancel_delete_item() {
     setDeleteItemOpen(false);
-    setDeleteItemStatus({ status: "default", message: "" });
   }
 
   // Group list

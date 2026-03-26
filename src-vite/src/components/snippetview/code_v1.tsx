@@ -72,7 +72,7 @@ export default function CodeV1(props: CodeV1Props) {
         value={content}
         onValueChange={(value: string) => setContent(value)}
         highlight={(code: string) => Prism.highlight(code, Prism.languages.clike, "clike")}
-        padding={10}
+        padding={30}
         style={{
           fontFamily: "monospace",
           fontSize: 16,
