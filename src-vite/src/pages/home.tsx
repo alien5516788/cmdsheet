@@ -1,5 +1,6 @@
 import { FaPlus, FaFolderOpen, FaKeyboard } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import logo from "../../../assets/png/48.png";
 
 interface HomeActionProps {
   icon: React.ReactNode;
@@ -22,7 +23,11 @@ export default function Home() {
       <div className="h-full border border-[#44475a] rounded-sm flex-col justify-between">
         {/* Header */}
         <div className="mt-20 mb-32 text-center">
-          <h1 className="text-3xl text-[#f8f8f2] mb-2">CmdSheet</h1>
+          <div className="flex justify-center items-center gap-4 mb-2">
+            <img src={logo} />
+            <h1 className="text-3xl text-[#f8f8f2]">CmdSheet</h1>
+          </div>
+          
           <p className="text-[#6272a4]">
             Your personal command and snippet workspace
           </p>
