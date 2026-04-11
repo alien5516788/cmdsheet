@@ -1,26 +1,20 @@
-import platform
 import subprocess
+import sys
 
 # Build frontend
 subprocess.run(["npm", "run", "build"], cwd="src-vite", check=True)
 
-# Determine OS specific add-data separator
-sep = ":" if platform.system() != "Windows" else ";"
-add_data = f"src/dist{sep}dist"
-
 # Build executable
 subprocess.run(
     [
-        "pyinstaller",
-        "--onefile",
-        "--clean",
-        "--noconsole",
-        "--add-data",
-        add_data,
-        "--name",
-        "cmdsheet",
-        "--icon=assets/ico/com.github.alien5516788.cmdsheet.ico",
+        sys.executable,
+        "-m",
+        "nuitka",
         "src/main.py",
+        "--standalone",
+        "--onefile",
+        "--output-filename=cmdsheet",
+        "--include-data-dir=src/dist=dist",
     ],
     check=True,
 )

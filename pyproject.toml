@@ -10,13 +10,6 @@ requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
 
-[tool.pdm.extras]
-# Install pywebview extras based on the system manually
-# eg: pdm add "pywebview[gtk]>=6.1"
-windows = ["pywebview[edgechromium]>=6.1"]
-linux = ["pywebview[gtk]>=6.1"]
-mac = ["pywebview>=6.1"]
-
 [tool.pdm]
 distribution = false
 
@@ -26,5 +19,5 @@ build = "python3 build.py"
 
 [dependency-groups]
 dev = [
-    "pyinstaller>=6.19.0",
+    "nuitka>=4.0.8",
 ]

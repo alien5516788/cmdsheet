@@ -7,6 +7,5 @@ __pycache__/
 src/dist/
 .cmdsheet/
 .env
-build/
-dist/
-cmdsheet.spec
+main.dist
+cmdsheet
