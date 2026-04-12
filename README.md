@@ -1,7 +1,5 @@
 # CMDsheet – Setup & Usage Guide
----
----
----
+       
 ## [1] Installation
 
 Install **pywebview** based on your operating system.
@@ -27,9 +25,7 @@ Example (Windows):
 ```bash
 pdm add "pywebview[edgechromium]>=6.1"
 ```
----
----
----
+
 ## [2] Environment Configuration
 
 Define the application mode using an environment variable or a `.env` file.
@@ -37,9 +33,7 @@ Define the application mode using an environment variable or a `.env` file.
 ```bash
 MODE="prod"   # Available values: "prod", "dev"
 ```
----
----
----
+
 ## [3] Development Mode
 
 ### Step 1 — Set Mode
@@ -62,9 +56,7 @@ Run in a separate terminal instance.
 ```bash
 pdm run start
 ```
----
----
----
+
 ## [4] Production Mode
 
 ### Step 1 — Set Mode
@@ -84,9 +76,7 @@ pdm run build_front
 ```bash
 pdm run start
 ```
----
----
----
+
 ## [5] Build executable or installable package
 
 Final executable or installable package will be generated inside **build** directory.
@@ -108,13 +98,10 @@ pdm run build_exec
 # Installable package
 pdm run build_pack
 ```
----
----
----
+
 ## [6] Notes
 
 * Always ensure the correct **pywebview backend** is installed for your platform.
 * Development mode requires both the frontend (Vite) and backend (Python) processes running simultaneously.
 * Production mode builds a frontend only or standalone executable or an installable package inside the build 
   directory depending on the command run.
----
