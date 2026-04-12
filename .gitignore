@@ -7,5 +7,5 @@ __pycache__/
 src/dist/
 .cmdsheet/
 .env
-main.dist
+main.dist/
 cmdsheet
