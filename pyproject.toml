@@ -15,9 +15,11 @@ distribution = false
 
 [tool.pdm.scripts]
 start = "python3 src/main.py"
-build = "python3 build.py"
+build_front = "python3 build.py"
+build_exec = "python3 build.py --type=exec" # includes build_front
+build_pack = "python3 build.py --type=pack" # includes build_exec
 
 [dependency-groups]
 dev = [
-    "nuitka>=4.0.8",
+    "nuitka[onefile]>=4.0.8",
 ]

@@ -1,4 +1,4 @@
-import { FaPlus, FaFolderOpen, FaKeyboard } from "react-icons/fa";
+import { FaPlus, FaFolderOpen } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import logo from "../../../assets/png/48.png";
 
@@ -25,9 +25,9 @@ export default function Home() {
         <div className="mt-20 mb-32 text-center">
           <div className="flex justify-center items-center gap-4 mb-2">
             <img src={logo} />
-            <h1 className="text-3xl text-[#f8f8f2]">CmdSheet</h1>
+            <h1 className="text-3xl text-[#f8f8f2]">CMDsheet</h1>
           </div>
-          
+
           <p className="text-[#6272a4]">
             Your personal command and snippet workspace
           </p>
@@ -40,36 +40,23 @@ export default function Home() {
         </div>
 
         {/* Overview */}
-        <div className="m-20 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="my-20 flex justify-center gap-[10%]">
           {/* Start */}
           <div>
             <h2 className="text-[#bd93f9] mb-4">Start</h2>
             <div className="flex flex-col gap-3">
               <HomeAction icon={<FaPlus />} label="create-snippet" />
               <HomeAction icon={<FaFolderOpen />} label="open-collection" />
-              <HomeAction icon={<FaKeyboard />} label="command-palette" />
             </div>
-          </div>
-
-          {/* Recent */}
-          <div>
-            <h2 className="text-[#bd93f9] mb-4">Recent</h2>
-            <ul className="text-[#8be9fd] flex flex-col gap-2">
-              <li className="hover:underline cursor-pointer">git reset --hard</li>
-              <li className="hover:underline cursor-pointer">
-                docker compose up
-              </li>
-              <li className="hover:underline cursor-pointer">nmap -sV target</li>
-            </ul>
           </div>
 
           {/* Tips */}
           <div>
             <h2 className="text-[#bd93f9] mb-4">Tips</h2>
-            <ul className="text-[#6272a4] flex flex-col gap-2">
-              <li>Use ":" to open command palette</li>
-              <li>Press Ctrl + B to toggle sidebar</li>
-              <li>Search supports tags and groups</li>
+            <ul className="text-[#6272a4] flex flex-col gap-3">
+              <li>Search supports snippets and tags</li>
+              <li>Use shortcuts for faster access (available soon...)</li>
+              <li>Customizable with themes (available soon..)</li>
             </ul>
           </div>
         </div>
