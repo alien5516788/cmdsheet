@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { FaCog, FaMoon, FaSearch } from "react-icons/fa";
+import { FaCog, FaMoon, FaSun, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import type { StatusBarItem } from "../statusbar";
 import { search_snippets } from "../../api";
+import { useTheme } from "../../hooks/useTheme";
 
 export interface SearchResult {
   id: number;
@@ -14,11 +15,15 @@ interface NavbarProps {
   searchResult: SearchResult[];
   setSearchResult: React.Dispatch<React.SetStateAction<SearchResult[]>>;
   scrollToSnippet: (id: number) => void;
-  pushToStatusBar: (newStatus: Omit<StatusBarItem, "id">) => void
+  pushToStatusBar: (newStatus: Omit<StatusBarItem, "id">) => void;
 }
 
 export default function Navbar(props: NavbarProps) {
-  const { searchResult, setSearchResult, scrollToSnippet, pushToStatusBar } = props;
+  const { theme, setTheme } = useTheme();
+
+  // Searching
+  const { searchResult, setSearchResult, scrollToSnippet, pushToStatusBar } =
+    props;
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [openSearchResultBox, setOpenSearchResultBox] = useState(false);
@@ -44,7 +49,7 @@ export default function Navbar(props: NavbarProps) {
         setSearchResult(result.result);
       } else {
         setSearchResult([]);
-        pushToStatusBar({ status: "error", message: result.message })
+        pushToStatusBar({ status: "error", message: result.message });
       }
 
       setOpenSearchResultBox(true);
@@ -96,7 +101,6 @@ export default function Navbar(props: NavbarProps) {
             </button>
           )}
 
-
           {/* Search result */}
           {openSearchResultBox && (
             <div className="absolute top-full left-0 w-full mt-2 bg-[#282a36] border border-[#44475a] rounded shadow-lg z-50 max-h-64 overflow-y-auto">
@@ -112,14 +116,13 @@ export default function Navbar(props: NavbarProps) {
                     to={`/group/${item.groupName}`}
                     className="block px-3 py-2 hover:bg-[#44475a] transition"
                     onClick={() => {
-                      setSearchQuery(item.name)
-                      setOpenSearchResultBox(false)
+                      setSearchQuery(item.name);
+                      setOpenSearchResultBox(false);
                       // scroll to snippet after a short delay to allow the link to settle
                       setTimeout(() => {
                         scrollToSnippet(item.id);
                       }, 50);
-                    }
-                    }
+                    }}
                   >
                     <div className="text-[#f8f8f2]">{item.name}</div>
                     <div className="text-[#6272a4] text-xs truncate">
@@ -135,13 +138,21 @@ export default function Navbar(props: NavbarProps) {
         {/* Actions */}
         <div className="flex items-center gap-5 whitespace-nowrap">
           {/* Settings */}
-          <button className="text-[#6272a4] hover:text-[#f8f8f2] transition disabled cursor-not-allowed" title="Not implemented">
+          <button
+            className="text-[#6272a4] hover:text-[#f8f8f2] transition disabled cursor-not-allowed"
+            title="Not implemented"
+          >
             <FaCog size={18} />
           </button>
 
           {/* Theme Toggle */}
-          <button className="text-[#f1fa8c] hover:text-[#f8f8f2] transition disabled cursor-not-allowed" title="Not implemented">
-            <FaMoon size={18} />
+          <button
+            className="text-[#f1fa8c] hover:text-[#f8f8f2] transition"
+            title={theme === "light" ? "Toggle Dark" : "Toggle Light"}
+            // TODO: Toggle isn't perisistant across pages; implement global setting feature
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "light" ? <FaMoon size={18} /> : <FaSun size={18} />}
           </button>
         </div>
       </div>

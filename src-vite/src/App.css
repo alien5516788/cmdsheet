@@ -48,3 +48,21 @@ body {
 ::-webkit-scrollbar-corner {
     background: #282a36;
 }
+
+/* Dark/Light theme */
+/* TODO: Update with proper colours */
+:root {
+    --terminal-bg: #f8f8f2;
+    --terminal-fg: #282a36;
+    --terminal-muted: #6b7280;
+    --terminal-accent: #2563eb;
+    --terminal-border: #d1d5db;
+}
+
+.dark {
+    --terminal-bg: #282a36;
+    --terminal-fg: #f8f8f2;
+    --terminal-muted: #6272a4;
+    --terminal-accent: #50fa7b;
+    --terminal-border: #44475a;
+}

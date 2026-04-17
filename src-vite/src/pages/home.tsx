@@ -19,7 +19,7 @@ function HomeAction(props: HomeActionProps) {
 
 export default function Home() {
   return (
-    <div className="h-screen p-20">
+    <div className="h-screen p-20 bg-terminal-bg">
       <div className="h-full border border-[#44475a] rounded-sm flex-col justify-between">
         {/* Header */}
         <div className="mt-20 mb-32 text-center">
