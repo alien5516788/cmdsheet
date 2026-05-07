@@ -1,4 +1,4 @@
-# CMDsheet – Setup & Usage Guide
+# CMDsheet – Setup & Usage
        
 ## [1] Installation
 
